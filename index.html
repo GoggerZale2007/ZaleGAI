@@ -6,40 +6,69 @@
     <title>ZaleGAI Elite</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        :root { --primary: #10a37f; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
-        body { margin: 0; font-family: 'Inter', -apple-system, sans-serif; background: #000; color: #eee; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* Modern ChatGPT Header */
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-        .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+        :root { --primary: #10a37f; --error: #ff4b4b; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
         
-        /* THE BUTTON FIX: cursor:pointer is required for iOS click detection */
-        .btn-action { cursor: pointer; border: 1px solid var(--primary); background: transparent; color: var(--primary); padding: 6px 15px; border-radius: 20px; font-weight: bold; touch-action: manipulation; }
+        body { margin: 0; font-family: 'Inter', -apple-system, sans-serif; background: #0b0b0b; color: #eee; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
-        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .row { display: flex; width: 100%; gap: 15px; animation: fadeIn 0.3s ease; }
+        /* Smooth Mesh Background */
+        body::before { content: ""; position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at 10% 20%, rgba(16, 163, 127, 0.08) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(138, 180, 248, 0.05) 0%, transparent 40%); z-index: -1; }
+
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); }
+        .logo { font-size: 1.3rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
+        
+        /* Glass Button */
+        .btn-action { cursor: pointer; border: 1px solid var(--border); background: var(--glass); color: #fff; padding: 8px 18px; border-radius: 20px; font-size: 13px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-action:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-2px); }
+
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 24px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        
+        /* Message Entry Animation */
+        .row { display: flex; width: 100%; gap: 15px; animation: msgSlide 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
         .user-row { justify-content: flex-end; }
-        .msg { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 16px; line-height: 1.5; backdrop-filter: blur(10px); border: 1px solid var(--border); }
-        .user-msg { background: rgba(16, 163, 127, 0.2); border-color: rgba(16, 163, 127, 0.3); }
+        @keyframes msgSlide { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .msg { max-width: 85%; padding: 14px 20px; border-radius: 22px; font-size: 16px; line-height: 1.6; backdrop-filter: blur(10px); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .user-msg { background: rgba(16, 163, 127, 0.15); border-color: rgba(16, 163, 127, 0.2); }
         .bot-msg { background: var(--glass); }
 
-        /* Input Area */
-        .input-area { padding: 20px 15px calc(20px + env(safe-area-inset-bottom)); }
-        .input-container { max-width: 780px; margin: 0 auto; background: #222; border-radius: 30px; display: flex; padding: 5px 10px; align-items: center; border: 1px solid var(--border); }
-        input { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; font-size: 16px; outline: none; }
-        .send-btn { background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; }
+        /* ERROR STYLING & ANIMATION */
+        .error-container { display: flex; align-items: center; gap: 10px; color: var(--error); font-weight: 500; padding: 10px; }
+        .error-icon { font-size: 20px; animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both, glowPulse 1.5s infinite; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        @keyframes glowPulse { 0% { text-shadow: 0 0 0px var(--error); } 50% { text-shadow: 0 0 10px var(--error); } 100% { text-shadow: 0 0 0px var(--error); } }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* FLOATING POPUP ANIMATION */
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+        #overlay.active { display: flex; opacity: 1; }
+        .modal { background: #1a1a1a; padding: 30px; border-radius: 24px; border: 1px solid var(--border); width: 90%; max-width: 400px; transform: scale(0.8); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        #overlay.active .modal { transform: scale(1); }
+
+        /* Input Area */
+        .input-area { padding: 20px 15px calc(25px + env(safe-area-inset-bottom)); }
+        .input-container { max-width: 780px; margin: 0 auto; background: #161616; border-radius: 30px; display: flex; padding: 6px 10px; align-items: center; border: 1px solid var(--border); transition: 0.3s; }
+        .input-container:focus-within { border-color: var(--primary); box-shadow: 0 0 15px rgba(16,163,127,0.2); }
+        input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; font-size: 16px; outline: none; }
+        .send-btn { background: var(--primary); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .send-btn:hover { transform: rotate(-10deg) scale(1.1); }
     </style>
 </head>
 <body>
 
 <header>
     <div class="logo">ZaleGAI</div>
-    <button class="btn-action" id="keyBtn">API KEY</button>
+    <button class="btn-action" id="keyBtn">Settings</button>
 </header>
 
-<div id="chat" id="chatContainer">
+<div id="overlay">
+    <div class="modal">
+        <h3 style="margin-top:0">Groq Settings</h3>
+        <p style="font-size:14px; color:#aaa">Enter your gsk_... key below:</p>
+        <input type="text" id="apiInput" placeholder="Paste key here" style="width:100%; box-sizing:border-box; background:#000; border:1px solid #333; border-radius:10px; margin-bottom:20px;">
+        <button class="btn-action" id="saveKey" style="width:100%; background:var(--primary); border:none; padding:12px;">Save & Close</button>
+    </div>
+</div>
+
+<div id="chat">
     <div class="row">
         <div class="msg bot-msg">Welcome to ZaleGAI, how can i help you today?</div>
     </div>
@@ -58,30 +87,35 @@
     let API_KEY = localStorage.getItem('zalegai_g_key') || "";
     let chatHistory = [];
 
-    // PointerEvents (pointerdown) work better than 'click' for mobile
+    const overlay = document.getElementById('overlay');
+    const apiInput = document.getElementById('apiInput');
     const keyBtn = document.getElementById('keyBtn');
     const sendBtn = document.getElementById('sendBtn');
     const userInput = document.getElementById('userInput');
 
-    keyBtn.addEventListener('pointerdown', function() {
-        const k = prompt("Enter Groq API Key (gsk_...):", API_KEY);
-        if(k) { API_KEY = k.trim(); localStorage.setItem('zalegai_g_key', API_KEY); alert("Key Saved!"); }
-    });
+    // Smooth Modal Logic
+    keyBtn.onclick = () => { apiInput.value = API_KEY; overlay.classList.add('active'); };
+    document.getElementById('saveKey').onclick = () => {
+        API_KEY = apiInput.value.trim();
+        localStorage.setItem('zalegai_g_key', API_KEY);
+        overlay.classList.remove('active');
+    };
+    overlay.onclick = (e) => { if(e.target === overlay) overlay.classList.remove('active'); };
 
-    sendBtn.addEventListener('pointerdown', function(e) {
-        e.preventDefault(); // Prevents double firing
-        askAI();
-    });
-
-    userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') askAI(); });
-
-    function addMessage(text, sender) {
+    function addMessage(text, sender, isError = false) {
         const chat = document.getElementById('chat');
         const row = document.createElement('div');
         row.className = `row ${sender}-row`;
+        
         const msg = document.createElement('div');
         msg.className = `msg ${sender}-msg`;
-        msg.innerHTML = (sender === 'bot') ? marked.parse(text) : text;
+        
+        if (isError) {
+            msg.innerHTML = `<div class="error-container"><span class="error-icon">❌</span> ${text}</div>`;
+        } else {
+            msg.innerHTML = (sender === 'bot') ? marked.parse(text) : text;
+        }
+        
         row.appendChild(msg);
         chat.appendChild(row);
         chat.scrollTop = chat.scrollHeight;
@@ -90,13 +124,12 @@
 
     async function askAI() {
         const text = userInput.value.trim();
-        if(!text || !API_KEY) { if(!API_KEY) alert("Add Key first!"); return; }
+        if(!text) return;
+        if(!API_KEY) { addMessage("API Key missing! Tap Settings.", "bot", true); return; }
 
         addMessage(text, 'user');
         userInput.value = "";
         chatHistory.push({ role: "user", content: text });
-
-        const botBox = addMessage("Thinking...", "bot");
 
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -106,16 +139,19 @@
             });
 
             const data = await res.json();
+            if (data.error) throw new Error(data.error.message);
+
             const aiText = data.choices[0].message.content;
-            
-            botBox.innerHTML = marked.parse(aiText);
+            addMessage(aiText, "bot");
             chatHistory.push({ role: "assistant", content: aiText });
-            document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
 
         } catch(e) {
-            botBox.innerHTML = "Error: Check your Key or Internet.";
+            addMessage(e.message, "bot", true);
         }
     }
+
+    userInput.onkeypress = (e) => { if(e.key === 'Enter') askAI(); };
+    sendBtn.onclick = askAI;
 </script>
 </body>
 </html>
