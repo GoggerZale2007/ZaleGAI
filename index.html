@@ -13,38 +13,41 @@
         header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); z-index: 10; }
         .logo { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
         
-        /* 3-Line Menu Button */
-        .menu-btn { cursor: pointer; background: none; border: none; display: flex; flex-direction: column; gap: 5px; padding: 5px; }
+        .menu-btn { cursor: pointer; background: none; border: none; display: flex; flex-direction: column; gap: 5px; padding: 5px; z-index: 1100; }
         .menu-btn span { width: 25px; height: 2px; background: #fff; border-radius: 2px; transition: 0.3s; }
 
-        /* Sidebar Menu */
-        #sidebar { position: fixed; left: -280px; top: 0; bottom: 0; width: 260px; background: #161616; border-right: 1px solid var(--border); z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; display: flex; flex-direction: column; gap: 20px; }
+        #sidebar { position: fixed; left: -100%; top: 0; bottom: 0; width: 280px; background: #111; border-right: 1px solid var(--border); z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; display: flex; flex-direction: column; gap: 15px; box-sizing: border-box; }
         #sidebar.active { left: 0; }
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 999; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 999; backdrop-filter: blur(4px); }
         .sidebar-overlay.active { display: block; }
 
-        .btn-action { cursor: pointer; border: 1px solid var(--border); background: var(--glass); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px; transition: 0.3s; text-align: left; }
+        .btn-action { cursor: pointer; border: 1px solid var(--border); background: var(--glass); color: #fff; padding: 12px 16px; border-radius: 12px; font-size: 14px; transition: 0.3s; text-align: left; display: flex; align-items: center; gap: 10px; width: 100%; }
         .btn-action:hover { background: rgba(255,255,255,0.1); border-color: var(--primary); }
+        .btn-new { background: var(--primary); border: none; font-weight: 600; justify-content: center; }
 
-        /* Chat Area */
         #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 24px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .row { display: flex; width: 100%; gap: 15px; animation: msgAppear 0.5s ease forwards; }
+        .row { display: flex; width: 100%; gap: 15px; animation: msgAppear 0.4s ease forwards; }
         .user-row { justify-content: flex-end; }
         @keyframes msgAppear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .msg { max-width: 85%; padding: 14px 20px; border-radius: 22px; font-size: 16px; line-height: 1.6; backdrop-filter: blur(10px); border: 1px solid var(--border); }
-        .bot-msg { background: var(--glass); }
-        .user-msg { background: rgba(16, 163, 127, 0.2); border-color: var(--primary); }
-
-        /* Settings Modal */
-        #settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1100; }
-        #settings-overlay.active { display: flex; }
-        .modal { background: #1a1a1a; padding: 30px; border-radius: 28px; border: 1px solid var(--border); width: 90%; max-width: 400px; text-align: center; }
+        .bot-msg { background: var(--glass); border-color: var(--border); }
+        .user-msg { background: rgba(16, 163, 127, 0.15); border-color: var(--primary); }
+        .msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
 
         .input-area { padding: 10px 15px calc(20px + env(safe-area-inset-bottom)); }
-        .input-container { max-width: 780px; margin: 0 auto; background: #161616; border-radius: 30px; display: flex; padding: 6px 10px; align-items: center; border: 1px solid var(--border); }
-        input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; font-size: 16px; outline: none; }
-        .send-btn { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .input-container { max-width: 780px; margin: 0 auto; background: #161616; border-radius: 30px; display: flex; padding: 6px 10px; align-items: center; border: 1px solid var(--border); gap: 8px; }
+        
+        /* Plus Button Style */
+        .plus-btn { background: var(--glass); color: #fff; border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.3s; }
+        .plus-btn:hover { background: var(--border); border-color: #fff; }
+
+        input[type="text"] { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; font-size: 16px; outline: none; }
+        .send-btn { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
+        
+        #settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1200; }
+        #settings-overlay.active { display: flex; }
+        .modal { background: #1a1a1a; padding: 30px; border-radius: 28px; border: 1px solid var(--border); width: 90%; max-width: 350px; text-align: center; }
     </style>
 </head>
 <body>
@@ -52,33 +55,23 @@
 <div class="sidebar-overlay" id="overlay" onclick="toggleMenu()"></div>
 
 <header>
-    <button class="menu-btn" onclick="toggleMenu()">
-        <span></span><span></span><span></span>
-    </button>
+    <button class="menu-btn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
     <div class="logo">ZaleGAI Elite</div>
-    <button class="btn-action" style="padding: 6px 12px; border-radius: 20px;" onclick="toggleSettings()">⚙️</button>
+    <button class="btn-action" style="width:auto; padding:8px 12px; border-radius:50%;" onclick="toggleSettings()">⚙️</button>
 </header>
 
 <div id="sidebar">
-    <h3 style="margin-top:0; color:var(--primary);">Menu</h3>
-    
-    <p style="font-size: 12px; color: #666; margin-bottom: 5px;">CONTROLS</p>
-    <button class="btn-action" onclick="clearChat()">🗑️ Clear Chat History</button>
-    
-    <p style="font-size: 12px; color: #666; margin-bottom: 5px; margin-top: 10px;">QUICK SUGGESTIONS</p>
-    <button class="btn-action" onclick="useSugg('Write a short sci-fi story')">📝 Write a Story</button>
-    <button class="btn-action" onclick="useSugg('Explain how black holes work')">⚛️ Science Lesson</button>
-    <button class="btn-action" onclick="useSugg('Give me a high-intensity workout')">💪 Fitness Plan</button>
-    <button class="btn-action" onclick="useSugg('Write a Python script for a timer')">🐍 Python Coding</button>
+    <button class="btn-action btn-new" onclick="newChat()">+ New Chat</button>
+    <p style="font-size: 11px; color: #555; margin-top: 10px; letter-spacing: 1px;">HISTORY</p>
+    <button class="btn-action" onclick="clearChat()">🗑️ Clear All Chats</button>
 </div>
 
 <div id="settings-overlay">
     <div class="modal">
-        <h3 style="margin-top:0;">API Key</h3>
-        <p style="font-size:12px; color:#888; margin-bottom: 20px;">Your Groq key is stored only in this browser.</p>
+        <h3>API Key</h3>
         <input type="password" id="apiKeyInput" placeholder="gsk_..." style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px; box-sizing:border-box;">
-        <button class="btn-action" onclick="saveKey()" style="width:100%; background:var(--primary); border:none; text-align:center;">Save Key</button>
-        <button onclick="toggleSettings()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Close</button>
+        <button class="btn-action" style="justify-content:center; background:var(--primary);" onclick="saveKey()">Save Changes</button>
+        <button onclick="toggleSettings()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Cancel</button>
     </div>
 </div>
 
@@ -86,7 +79,10 @@
 
 <div class="input-area">
     <div class="input-container">
-        <input type="text" id="userInput" placeholder="Message ZaleGAI..." autocomplete="off">
+        <input type="file" id="fileInput" hidden onchange="handleFile(this)">
+        <button class="plus-btn" onclick="document.getElementById('fileInput').click()">+</button>
+        
+        <input type="text" id="userInput" placeholder="Ask ZaleGAI..." autocomplete="off">
         <button class="send-btn" onclick="askAI()">↑</button>
     </div>
 </div>
@@ -95,19 +91,14 @@
     let chatHistory = [];
 
     window.onload = () => {
-        const saved = localStorage.getItem('zalegai_elite_history');
-        if (saved) {
-            document.getElementById('chat').innerHTML = saved;
-            const messages = document.querySelectorAll('.msg');
-            messages.forEach(m => {
-                chatHistory.push({
-                    role: m.classList.contains('user-msg') ? 'user' : 'assistant',
-                    content: m.innerText
-                });
-            });
+        const savedMessages = localStorage.getItem('zalegai_chat_log');
+        const savedHistory = localStorage.getItem('zalegai_json_history');
+        if (savedMessages && savedHistory) {
+            document.getElementById('chat').innerHTML = savedMessages;
+            chatHistory = JSON.parse(savedHistory);
             document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
         } else {
-            addMessage("Welcome to ZaleGAI Elite. Open the menu to clear history or use suggestions. Please set your API key to begin.", "bot");
+            addMessage("ZaleGAI Elite is ready. You can now upload images and files using the **+** button.", "bot");
         }
     };
 
@@ -124,25 +115,27 @@
 
     function saveKey() {
         const key = document.getElementById('apiKeyInput').value.trim();
-        if(key) {
-            localStorage.setItem('zalegai_api_key', key);
-            toggleSettings();
-            confetti({ particleCount: 30 });
-        }
+        if(key) { localStorage.setItem('zalegai_api_key', key); toggleSettings(); confetti({ particleCount: 30 }); }
     }
 
-    function clearChat() {
-        if(confirm("Wipe all chat history?")) {
-            localStorage.removeItem('zalegai_elite_history');
-            chatHistory = [];
-            location.reload();
-        }
-    }
+    function handleFile(input) {
+        const file = input.files[0];
+        if (!file) return;
 
-    function useSugg(val) {
-        toggleMenu();
-        document.getElementById('userInput').value = val;
-        askAI();
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target.result;
+            let content = `📎 Attached: **${file.name}**`;
+            
+            if (file.type.startsWith('image/')) {
+                content += `<br><img src="${base64}">`;
+            }
+
+            addMessage(content, 'user');
+            chatHistory.push({ role: "user", content: `[User uploaded a file: ${file.name} (type: ${file.type}). Please acknowledge this file in your next response.]` });
+            saveChat();
+        };
+        reader.readAsDataURL(file);
     }
 
     async function askAI() {
@@ -169,12 +162,9 @@
             
             addMessage(aiText, "bot");
             chatHistory.push({ role: "assistant", content: aiText });
-            localStorage.setItem('zalegai_elite_history', document.getElementById('chat').innerHTML);
-            if(aiText.length > 300) confetti({ particleCount: 100, spread: 70 });
+            saveChat();
 
-        } catch(e) {
-            addMessage("⚠️ Failed to connect. Check your API key in settings.", "bot");
-        }
+        } catch(e) { addMessage("⚠️ Error: Check your API Key.", "bot"); }
     }
 
     function addMessage(text, sender) {
@@ -187,12 +177,20 @@
         row.appendChild(msg);
         chat.appendChild(row);
         chat.scrollTop = chat.scrollHeight;
-        return msg;
     }
 
-    document.getElementById('userInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') askAI();
-    });
+    function saveChat() {
+        localStorage.setItem('zalegai_chat_log', document.getElementById('chat').innerHTML);
+        localStorage.setItem('zalegai_json_history', JSON.stringify(chatHistory));
+    }
+
+    function newChat() {
+        if(confirm("New chat?")) { localStorage.clear(); location.reload(); }
+    }
+
+    function clearChat() { if(confirm("Wipe history?")) { localStorage.clear(); location.reload(); } }
+
+    document.getElementById('userInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') askAI(); });
 </script>
 </body>
 </html>
