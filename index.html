@@ -6,107 +6,185 @@
     <title>ZaleGAI 1.0</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        :root { --bg: #ffffff; --text: #000; --blue: #1a73e8; --gray: #f1f3f4; }
-        [data-theme="dark"] { --bg: #121212; --text: #fff; --blue: #8ab4f8; --gray: #202124; }
-        body { margin: 0; font-family: -apple-system, sans-serif; height: 100dvh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); overflow: hidden; }
-        header { padding: 15px; padding-top: env(safe-area-inset-top); background: var(--blue); color: white; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
-        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 16px; line-height: 1.4; }
-        .user { align-self: flex-end; background: var(--blue); color: white; border-bottom-right-radius: 4px; }
-        .bot { align-self: flex-start; background: var(--gray); color: var(--text); border-bottom-left-radius: 4px; }
-        .error-msg { color: #d93025; background: #fce8e6; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 8px; border: 1px solid #f5c6cb; }
-        .input-area { padding: 10px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid #ddd; background: var(--bg); flex-shrink: 0; }
-        .input-container { display: flex; background: var(--gray); border-radius: 25px; padding: 5px 15px; align-items: center; border: 1px solid rgba(0,0,0,0.1); }
-        input { flex: 1; height: 40px; border: none; background: transparent; color: var(--text); font-size: 16px; outline: none; }
-        button#sendBtn { background: var(--blue); color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: bold; margin-left: 5px; }
+        :root {
+            --bg: #212121; --sidebar: #171717; --text: #ececec;
+            --user-msg: #303030; --bot-msg: transparent; --accent: #10a37f;
+        }
+        
+        body { 
+            margin: 0; font-family: 'Sentry', -apple-system, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            height: 100dvh; display: flex; flex-direction: column;
+        }
+
+        /* ChatGPT Header Style */
+        header { 
+            padding: 10px 15px; display: flex; justify-content: space-between; 
+            align-items: center; background: var(--bg); font-weight: 600; font-size: 18px;
+        }
+
+        /* Chat Window - Centered like GPT-4 */
+        #chat { 
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+            width: 100%; max-width: 800px; margin: 0 auto; padding-bottom: 100px;
+        }
+
+        .row { width: 100%; padding: 20px 15px; display: flex; gap: 15px; animation: fadeIn 0.3s ease; }
+        .row.user-row { background: transparent; justify-content: flex-end; }
+        
+        /* Message Bubbles */
+        .msg { max-width: 80%; line-height: 1.6; font-size: 16px; word-wrap: break-word; }
+        .user-msg-box { 
+            background: var(--user-msg); padding: 10px 20px; 
+            border-radius: 25px; color: #fff; 
+        }
+
+        /* Typing Cursor Animation */
+        .typing::after {
+            content: "●"; animation: blink 0.8s infinite;
+            margin-left: 5px; color: var(--accent);
+        }
+        @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Floating Input Bar */
+        .input-area { 
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, var(--bg) 30%);
+            padding: 20px 15px calc(20px + env(safe-area-inset-bottom));
+        }
+
+        .input-container {
+            max-width: 780px; margin: 0 auto; background: var(--user-msg);
+            border-radius: 30px; display: flex; align-items: center;
+            padding: 8px 15px; border: 1px solid #444;
+        }
+
+        input {
+            flex: 1; background: transparent; border: none; color: #fff;
+            padding: 10px; font-size: 16px; outline: none;
+        }
+
+        .send-btn {
+            background: var(--accent); color: white; border: none;
+            width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.2s;
+        }
+        .send-btn:disabled { opacity: 0.3; }
+
+        .set-btn { background: none; border: 1px solid #555; color: #aaa; border-radius: 5px; padding: 4px 8px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <span>ZaleGAI 1.0</span>
-    <button onclick="setKey()" style="background:rgba(255,255,255,0.2); border:1px solid white; color:white; border-radius:15px; padding:5px 12px; font-size:12px;">SET API KEY</button>
+    <span>ZaleGAI</span>
+    <button class="set-btn" onclick="setKey()">API Key</button>
 </header>
 
 <div id="chat">
-    <div class="msg bot">Hello! I'm ZaleGAI. Make sure to set your API Key above to start chatting.</div>
+    <div class="row">
+        <div class="msg">Hello. How can I help you today?</div>
+    </div>
 </div>
 
 <div class="input-area">
     <div class="input-container">
-        <input type="text" id="userInput" placeholder="Type a message..." autocomplete="off">
-        <button id="sendBtn" onclick="askAI()">SEND</button>
+        <input type="text" id="userInput" placeholder="Message ZaleGAI..." autocomplete="off">
+        <button class="send-btn" id="sendBtn" onclick="askAI()">↑</button>
     </div>
 </div>
 
 <script>
-    let API_KEY = localStorage.getItem('z_key') || "";
+    let API_KEY = localStorage.getItem('zalegai_groq_key') || "";
     let chatHistory = [];
+    let isTyping = false;
 
     function setKey() {
-        const key = prompt("Paste your Gemini API Key here:", API_KEY);
+        const key = prompt("Paste your Groq API Key (gsk_...):", API_KEY);
         if (key) {
             API_KEY = key.trim();
-            localStorage.setItem('z_key', API_KEY);
-            alert("API Key saved locally!");
+            localStorage.setItem('zalegai_groq_key', API_KEY);
         }
     }
 
-    function addMessage(content, sender, isError = false) {
+    function addRow(sender) {
         const chat = document.getElementById('chat');
-        const div = document.createElement('div');
-        div.className = isError ? 'error-msg' : `msg ${sender}`;
+        const row = document.createElement('div');
+        row.className = sender === 'user' ? 'row user-row' : 'row';
         
-        if (sender === 'bot' && !isError) {
-            div.innerHTML = marked.parse(content);
-        } else {
-            div.textContent = content;
-        }
+        const msgDiv = document.createElement('div');
+        msgDiv.className = sender === 'user' ? 'msg user-msg-box' : 'msg typing';
         
-        chat.appendChild(div);
+        row.appendChild(msgDiv);
+        chat.appendChild(row);
         chat.scrollTop = chat.scrollHeight;
+        return msgDiv;
+    }
+
+    // ChatGPT word-by-word animation
+    async function typeWriter(element, text) {
+        const words = text.split(" ");
+        element.innerHTML = "";
+        for (let i = 0; i < words.length; i++) {
+            element.innerHTML += words[i] + " ";
+            document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+            await new Promise(r => setTimeout(r, 40)); // Speed of typing
+        }
+        element.classList.remove('typing');
+        // Final render to parse Markdown
+        element.innerHTML = marked.parse(text);
     }
 
     async function askAI() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
+        const inp = document.getElementById('userInput');
+        const btn = document.getElementById('sendBtn');
+        const text = inp.value.trim();
 
-        if (!text) return;
-        if (!API_KEY) {
-            alert("Please tap 'SET API KEY' first!");
-            return;
-        }
+        if (!text || !API_KEY || isTyping) return;
 
-        addMessage(text, 'user');
-        input.value = "";
-        chatHistory.push({ role: "user", parts: [{ text: text }] });
+        isTyping = true;
+        btn.disabled = true;
+        
+        // User Message
+        const userBox = addRow('user');
+        userBox.textContent = text;
+        inp.value = "";
+        
+        chatHistory.push({ role: "user", content: text });
 
-        // THE FIXED URL: Note the "models/gemini-1.5-flash" path
-        const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // Bot Row (Empty at first)
+        const botBox = addRow('bot');
 
         try {
-            const response = await fetch(URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: chatHistory })
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: chatHistory
+                })
             });
 
             const data = await response.json();
+            const aiText = data.choices[0].message.content;
+            
+            await typeWriter(botBox, aiText);
+            chatHistory.push({ role: "assistant", content: aiText });
 
-            if (!response.ok) {
-                const errMsg = data.error ? data.error.message : "Unknown Connection Error";
-                addMessage(`⚠️ API Error (${response.status}): ${errMsg}`, 'bot', true);
-            } else {
-                const aiText = data.candidates[0].content.parts[0].text;
-                addMessage(aiText, 'bot');
-                chatHistory.push({ role: "model", parts: [{ text: aiText }] });
-            }
-        } catch (err) {
-            addMessage(`❌ System Error: ${err.message}`, 'bot', true);
+        } catch (e) {
+            botBox.innerHTML = "<span style='color:red'>Connection Error. Check Key/VPN.</span>";
+            botBox.classList.remove('typing');
+        } finally {
+            isTyping = false;
+            btn.disabled = false;
         }
     }
 
-    // Allow "Enter" key to send
     document.getElementById('userInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') askAI();
     });
