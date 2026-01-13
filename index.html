@@ -1,18 +1,51 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head> <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
     <title>ZaleGAI 1.0</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: #eee; }
-        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px 15px; border-radius: 18px; max-width: 80%; word-wrap: break-word; }
-        .user { align-self: flex-end; background: #007bff; color: white; }
-        .bot { align-self: flex-start; background: #ddd; color: black; }
-        .input-area { padding: 15px; background: white; display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 25px; outline: none; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; }
-    </style> /* Settings Button */
+        /* Styling for Markdown Code Blocks */
+pre {
+    background: #2d2d2d;
+    color: #f8f8f2;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto; /* Allows scrolling sideways for long code */
+    font-size: 14px;
+}
+code { font-family: monospace; }
+.bot ul, .bot ol { padding-left: 20px; } /* Fixes list spacing */
+
+    </style> :root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --header-bg: #1a73e8;
+    --header-text: #ffffff;
+    --user-msg-bg: #f0f0f0;
+    --bot-msg-bg: #ffffff;
+    --input-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --text-color: #f1f1f1;
+    --header-bg: #000000;
+    --header-text: #ffffff;
+    --user-msg-bg: #2d2d2d;
+    --bot-msg-bg: #1e1e1e;
+    --input-bg: #1e1e1e;
+}
+
+body { background-color: var(--bg-color); color: var(--text-color); transition: 0.3s; }
+header { background-color: var(--header-bg); color: var(--header-text); }
+.user { background-color: var(--user-msg-bg); }
+.bot { background-color: var(--bot-msg-bg); border: 1px solid #333; }
+input { background-color: var(--input-bg); color: var(--text-color); }
+    
+    /* Settings Button */
 .settings-btn { position: absolute; top: 15px; right: 15px; font-size: 20px; cursor: pointer; background: none; border: none; }
 
 /* The Modal (Pop-up) */
@@ -28,6 +61,13 @@ body.dark-mode { background: #121212; color: white; }
 body.dark-mode .modal-content { background: #1e1e1e; color: white; }
 body.dark-mode .input-area, body.dark-mode header { background: #1e1e1e; border-color: #333; }
 body.dark-mode input { color: white; }
+    <div class="setting-item">
+    <label>Appearance</label>
+    <button id="themeToggle" onclick="toggleDarkMode()" style="width:100%; padding:10px; border-radius:8px; cursor:pointer;">
+        🌙 Switch to Dark Mode
+    </button>
+    </div>
+    
 </head>   
 <body>
 
@@ -152,6 +192,53 @@ async function askAI() {
         addMessage("Memory Error: I forgot what we were talking about. Please check your API key.", 'bot');
     }
 }
+</script> function addMessage(text, sender) {
+    const div = document.createElement('div');
+    div.className = `msg ${sender}`;
+    
+    if (sender === 'bot') {
+        // Use marked.parse to convert AI text to HTML (bold, lists, code)
+        div.innerHTML = marked.parse(text);
+        
+        // This part highlights code blocks if you added the highlight.js link above
+        div.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+    } else {
+        div.innerText = text; // Keep user text as plain text for security
+    }
+
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+</script> function toggleDarkMode() {
+    const body = document.body;
+    const btn = document.getElementById('themeToggle');
+    
+    if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        btn.innerText = "🌙 Switch to Dark Mode";
+        localStorage.setItem('theme', 'light');
+    } else {
+        body.setAttribute('data-theme', 'dark');
+        btn.innerText = "☀️ Switch to Light Mode";
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+// Run this when the page loads to apply saved theme
+window.onload = function() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        document.getElementById('themeToggle').innerText = "☀️ Switch to Light Mode";
+    }
+};
+</head> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1698/1698535.png">
     
 </body>
 </html>
