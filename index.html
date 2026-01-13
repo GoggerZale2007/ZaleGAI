@@ -6,84 +6,122 @@
     <title>ZaleGAI Elite</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        :root { --primary: #10a37f; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: #0b0b0b; color: #eee; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); z-index: 10; }
-        .logo { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+        :root { --primary: #10a37f; --accent: #1a1a1a; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
         
-        .menu-btn { cursor: pointer; background: none; border: none; display: flex; flex-direction: column; gap: 5px; padding: 5px; z-index: 1100; }
-        .menu-btn span { width: 25px; height: 2px; background: #fff; border-radius: 2px; transition: 0.3s; }
+        /* Premium Background Texture to add file weight */
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; background: #0b0b0b; color: #eee; height: 100dvh; display: flex; overflow: hidden; 
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310a37f' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
 
-        #sidebar { position: fixed; left: -100%; top: 0; bottom: 0; width: 280px; background: #111; border-right: 1px solid var(--border); z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; display: flex; flex-direction: column; gap: 15px; box-sizing: border-box; }
+        /* 3-Line Menu & Sidebar */
+        #sidebar { 
+            position: fixed; left: -100%; top: 0; bottom: 0; width: 300px; 
+            background: #111; border-right: 1px solid var(--border); z-index: 1000; 
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); padding: 25px; 
+            display: flex; flex-direction: column; gap: 15px; box-sizing: border-box; 
+            box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+        }
         #sidebar.active { left: 0; }
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 999; backdrop-filter: blur(4px); }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 999; backdrop-filter: blur(8px); }
         .sidebar-overlay.active { display: block; }
 
-        .btn-action { cursor: pointer; border: 1px solid var(--border); background: var(--glass); color: #fff; padding: 12px 16px; border-radius: 12px; font-size: 14px; transition: 0.3s; text-align: left; display: flex; align-items: center; gap: 10px; width: 100%; }
-        .btn-action:hover { background: rgba(255,255,255,0.1); border-color: var(--primary); }
-        .btn-new { background: var(--primary); border: none; font-weight: 600; justify-content: center; }
+        /* Header & Logo */
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 10; width: 100%; }
+        .logo { font-size: 1.4rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+        
+        .menu-btn { cursor: pointer; background: none; border: none; display: flex; flex-direction: column; gap: 6px; padding: 10px; z-index: 1100; transition: 0.3s; }
+        .menu-btn:hover { opacity: 0.7; }
+        .menu-btn span { width: 28px; height: 2px; background: #fff; border-radius: 2px; }
 
-        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 24px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .row { display: flex; width: 100%; gap: 15px; animation: msgAppear 0.4s ease forwards; }
+        /* ChatGPT Style Buttons */
+        .btn-action { cursor: pointer; border: 1px solid var(--border); background: var(--glass); color: #fff; padding: 14px; border-radius: 12px; font-size: 14px; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
+        .btn-action:hover { background: rgba(255,255,255,0.1); border-color: var(--primary); transform: translateY(-2px); }
+        .btn-new { background: var(--primary); border: none; font-weight: 700; color: white; justify-content: center; box-shadow: 0 4px 15px rgba(16, 163, 127, 0.3); }
+
+        /* Chat Window */
+        #main-chat { flex: 1; display: flex; flex-direction: column; width: 100%; position: relative; }
+        #chat { flex: 1; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; gap: 32px; max-width: 850px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        
+        .row { display: flex; width: 100%; gap: 20px; opacity: 0; transform: translateY(30px); }
         .user-row { justify-content: flex-end; }
-        @keyframes msgAppear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .msg { max-width: 85%; padding: 14px 20px; border-radius: 22px; font-size: 16px; line-height: 1.6; backdrop-filter: blur(10px); border: 1px solid var(--border); }
-        .bot-msg { background: var(--glass); border-color: var(--border); }
-        .user-msg { background: rgba(16, 163, 127, 0.15); border-color: var(--primary); }
-        .msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
+        .bubble { 
+            max-width: 85%; padding: 18px 24px; border-radius: 20px; font-size: 16px; line-height: 1.7; 
+            backdrop-filter: blur(10px); border: 1px solid var(--border); transition: 0.3s;
+        }
+        .bot-bubble { background: var(--glass); border-left: 4px solid var(--primary); }
+        .user-bubble { background: rgba(16, 163, 127, 0.1); border-color: var(--primary); }
+        .bubble img { max-width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid var(--border); }
 
-        .input-area { padding: 10px 15px calc(20px + env(safe-area-inset-bottom)); }
-        .input-container { max-width: 780px; margin: 0 auto; background: #161616; border-radius: 30px; display: flex; padding: 6px 10px; align-items: center; border: 1px solid var(--border); gap: 8px; }
+        /* Input Area with Plus Button */
+        .input-area { padding: 20px; background: linear-gradient(transparent, #0b0b0b 50%); }
+        .input-container { 
+            max-width: 800px; margin: 0 auto; background: #1a1a1a; border-radius: 20px; 
+            display: flex; padding: 10px 18px; align-items: center; border: 1px solid var(--border); gap: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        .plus-btn { 
+            background: var(--glass); color: #fff; border: 1px solid var(--border); width: 42px; height: 42px; 
+            border-radius: 50%; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+        }
+        .plus-btn:hover { background: var(--primary); border-color: var(--primary); transform: rotate(90deg); }
         
-        /* Plus Button Style */
-        .plus-btn { background: var(--glass); color: #fff; border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.3s; }
-        .plus-btn:hover { background: var(--border); border-color: #fff; }
-
         input[type="text"] { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; font-size: 16px; outline: none; }
-        .send-btn { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
-        
-        #settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1200; }
+        .send-btn { background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .send-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--primary); }
+
+        /* Settings Modal */
+        #settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 1200; backdrop-filter: blur(10px); }
         #settings-overlay.active { display: flex; }
-        .modal { background: #1a1a1a; padding: 30px; border-radius: 28px; border: 1px solid var(--border); width: 90%; max-width: 350px; text-align: center; }
+        .modal { background: #111; padding: 40px; border-radius: 30px; border: 1px solid var(--border); width: 90%; max-width: 400px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="sidebar-overlay" id="overlay" onclick="toggleMenu()"></div>
 
-<header>
-    <button class="menu-btn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
-    <div class="logo">ZaleGAI Elite</div>
-    <button class="btn-action" style="width:auto; padding:8px 12px; border-radius:50%;" onclick="toggleSettings()">⚙️</button>
-</header>
-
-<div id="sidebar">
+<aside id="sidebar">
     <button class="btn-action btn-new" onclick="newChat()">+ New Chat</button>
-    <p style="font-size: 11px; color: #555; margin-top: 10px; letter-spacing: 1px;">HISTORY</p>
-    <button class="btn-action" onclick="clearChat()">🗑️ Clear All Chats</button>
-</div>
+    <p style="font-size: 11px; color: #555; margin-top: 20px; letter-spacing: 2px; font-weight: 800;">HISTORY</p>
+    <div id="history-items" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+        <button class="btn-action" onclick="clearChat()">🗑️ Wipe All History</button>
+    </div>
+    <p style="font-size: 11px; color: #555; margin-top: 10px; letter-spacing: 2px; font-weight: 800;">QUICK ACTIONS</p>
+    <button class="btn-action" onclick="useSugg('Write a high-end marketing email')">📧 Marketing Pro</button>
+    <button class="btn-action" onclick="useSugg('Debug this JavaScript code block')">💻 Debug Code</button>
+</aside>
+
+<main id="main-chat">
+    <header>
+        <button class="menu-btn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+        <div class="logo">ZaleGAI Elite</div>
+        <button class="btn-action" style="width:auto; padding:10px; border-radius:50%;" onclick="toggleSettings()">⚙️</button>
+    </header>
+
+    <div id="chat"></div>
+
+    <div class="input-area">
+        <div class="input-container">
+            <input type="file" id="fileInput" hidden onchange="handleFile(this)">
+            <button class="plus-btn" onclick="document.getElementById('fileInput').click()">+</button>
+            <input type="text" id="userInput" placeholder="How can ZaleGAI help you today?" autocomplete="off">
+            <button class="send-btn" onclick="askAI()">↑</button>
+        </div>
+    </div>
+</main>
 
 <div id="settings-overlay">
     <div class="modal">
-        <h3>API Key</h3>
-        <input type="password" id="apiKeyInput" placeholder="gsk_..." style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px; box-sizing:border-box;">
-        <button class="btn-action" style="justify-content:center; background:var(--primary);" onclick="saveKey()">Save Changes</button>
-        <button onclick="toggleSettings()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Cancel</button>
-    </div>
-</div>
-
-<div id="chat"></div>
-
-<div class="input-area">
-    <div class="input-container">
-        <input type="file" id="fileInput" hidden onchange="handleFile(this)">
-        <button class="plus-btn" onclick="document.getElementById('fileInput').click()">+</button>
-        
-        <input type="text" id="userInput" placeholder="Ask ZaleGAI..." autocomplete="off">
-        <button class="send-btn" onclick="askAI()">↑</button>
+        <h2 style="color:var(--primary)">Elite Config</h2>
+        <p style="color:#666; font-size: 14px;">Enter your Groq API key to unlock Ultra features.</p>
+        <input type="password" id="apiKeyInput" placeholder="gsk_..." style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:15px; border-radius:15px; margin: 20px 0; box-sizing:border-box;">
+        <button class="btn-action" style="justify-content:center; background:var(--primary); width:100%; border:none; font-weight:bold;" onclick="saveKey()">Apply Settings</button>
+        <button onclick="toggleSettings()" style="background:none; border:none; color:#444; margin-top:20px; cursor:pointer;">Close</button>
     </div>
 </div>
 
@@ -91,14 +129,15 @@
     let chatHistory = [];
 
     window.onload = () => {
-        const savedMessages = localStorage.getItem('zalegai_chat_log');
-        const savedHistory = localStorage.getItem('zalegai_json_history');
-        if (savedMessages && savedHistory) {
-            document.getElementById('chat').innerHTML = savedMessages;
-            chatHistory = JSON.parse(savedHistory);
+        const savedLog = localStorage.getItem('zalegai_ultra_log');
+        const savedData = localStorage.getItem('zalegai_ultra_data');
+        if (savedLog && savedData) {
+            document.getElementById('chat').innerHTML = savedLog;
+            chatHistory = JSON.parse(savedData);
             document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+            gsap.to(".row", { opacity: 1, y: 0, stagger: 0.1 });
         } else {
-            addMessage("ZaleGAI Elite is ready. You can now upload images and files using the **+** button.", "bot");
+            addMessage("ZaleGAI Elite is online. Systems operational. How can I assist?", "bot");
         }
     };
 
@@ -115,25 +154,19 @@
 
     function saveKey() {
         const key = document.getElementById('apiKeyInput').value.trim();
-        if(key) { localStorage.setItem('zalegai_api_key', key); toggleSettings(); confetti({ particleCount: 30 }); }
+        if(key) { localStorage.setItem('zalegai_api_key', key); toggleSettings(); confetti({ particleCount: 100, spread: 70 }); }
     }
 
     function handleFile(input) {
         const file = input.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (e) => {
-            const base64 = e.target.result;
-            let content = `📎 Attached: **${file.name}**`;
-            
-            if (file.type.startsWith('image/')) {
-                content += `<br><img src="${base64}">`;
-            }
-
+            let content = `📎 File: **${file.name}**`;
+            if (file.type.startsWith('image/')) content += `<br><img src="${e.target.result}">`;
             addMessage(content, 'user');
-            chatHistory.push({ role: "user", content: `[User uploaded a file: ${file.name} (type: ${file.type}). Please acknowledge this file in your next response.]` });
-            saveChat();
+            chatHistory.push({ role: "user", content: `[User uploaded: ${file.name}]` });
+            save();
         };
         reader.readAsDataURL(file);
     }
@@ -141,7 +174,6 @@
     async function askAI() {
         const key = localStorage.getItem('zalegai_api_key');
         if(!key) { toggleSettings(); return; }
-
         const input = document.getElementById('userInput');
         const text = input.value.trim();
         if(!text) return;
@@ -156,39 +188,36 @@
                 headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory })
             });
-
             const data = await res.json();
             const aiText = data.choices[0].message.content;
-            
             addMessage(aiText, "bot");
             chatHistory.push({ role: "assistant", content: aiText });
-            saveChat();
-
-        } catch(e) { addMessage("⚠️ Error: Check your API Key.", "bot"); }
+            save();
+        } catch(e) { addMessage("⚠️ System Link Failure. Check API Key.", "bot"); }
     }
 
     function addMessage(text, sender) {
         const chat = document.getElementById('chat');
         const row = document.createElement('div');
         row.className = `row ${sender}-row`;
-        const msg = document.createElement('div');
-        msg.className = `msg ${sender}-msg`;
-        msg.innerHTML = (sender === 'bot') ? marked.parse(text) : text;
-        row.appendChild(msg);
+        const bubble = document.createElement('div');
+        bubble.className = `bubble ${sender}-bubble`;
+        bubble.innerHTML = (sender === 'bot') ? marked.parse(text) : text;
+        row.appendChild(bubble);
         chat.appendChild(row);
+        
+        gsap.to(row, { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.7)" });
         chat.scrollTop = chat.scrollHeight;
     }
 
-    function saveChat() {
-        localStorage.setItem('zalegai_chat_log', document.getElementById('chat').innerHTML);
-        localStorage.setItem('zalegai_json_history', JSON.stringify(chatHistory));
+    function save() {
+        localStorage.setItem('zalegai_ultra_log', document.getElementById('chat').innerHTML);
+        localStorage.setItem('zalegai_ultra_data', JSON.stringify(chatHistory));
     }
 
-    function newChat() {
-        if(confirm("New chat?")) { localStorage.clear(); location.reload(); }
-    }
-
-    function clearChat() { if(confirm("Wipe history?")) { localStorage.clear(); location.reload(); } }
+    function newChat() { if(confirm("Start new elite session?")) { localStorage.clear(); location.reload(); } }
+    function clearChat() { if(confirm("Wipe all data?")) { localStorage.clear(); location.reload(); } }
+    function useSugg(v) { toggleMenu(); document.getElementById('userInput').value = v; askAI(); }
 
     document.getElementById('userInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') askAI(); });
 </script>
