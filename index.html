@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ZaleGAI 1.0</title>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -11,134 +11,36 @@
 
     <style>
         :root {
-            --bg: #ffffff; --text: #333; --header: #1a73e8; --chat-bg: #f5f5f5;
-            --user-msg: #1a73e8; --bot-msg: #ffffff; --input-bg: #ffffff;
+            --bg: #ffffff; --text: #333; --header: #1a73e8; --chat-bg: #f8f9fa;
+            --user-bubble: #1a73e8; --bot-bubble: #ffffff;
         }
         [data-theme="dark"] {
-            --bg: #121212; --text: #e0e0e0; --header: #000000; --chat-bg: #121212;
-            --user-msg: #375a7f; --bot-msg: #2c2c2c; --input-bg: #1e1e1e;
+            --bg: #121212; --text: #f0f0f0; --header: #000000; --chat-bg: #121212;
+            --user-bubble: #375a7f; --bot-bubble: #2d2d2d;
         }
 
-        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        header { padding: 15px; text-align: center; background: var(--header); color: white; font-weight: bold; position: relative; z-index: 100; }
-        .settings-btn { position: absolute; right: 15px; top: 12px; background: none; border: none; font-size: 24px; color: white; cursor: pointer; }
-
-        #chat { flex: 1; overflow-y: auto; padding: 15px; background: var(--chat-bg); display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 16px; line-height: 1.4; word-wrap: break-word; }
-        .user { align-self: flex-end; background: var(--user-msg); color: white; border-bottom-right-radius: 2px; }
-        .bot { align-self: flex-start; background: var(--bot-msg); color: var(--text); border-bottom-left-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        
-        /* Fixed Chat Bar */
-        .input-area { padding: 10px 15px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); background: var(--input-bg); border-top: 1px solid #ddd; z-index: 100; }
-        .input-container { display: flex; align-items: center; background: var(--chat-bg); border-radius: 30px; padding: 5px 5px 5px 15px; border: 1px solid #ccc; }
-        input#userInput { flex: 1; border: none; background: transparent; color: var(--text); font-size: 16px; outline: none; height: 45px; }
-        button#send { background: var(--header); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
-        .modal-content { background: var(--bg); margin: 15% auto; padding: 25px; width: 85%; border-radius: 15px; }
-        .setting-item { margin-bottom: 20px; }
-        input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; background: var(--bg); color: var(--text); font-size: 14px; box-sizing: border-box; }
-    </style>
-</head>
-<body>
-
-<header>
-    <span>ZaleGAI 1.0</span>
-    <button class="settings-btn" id="openSettings">⚙️</button>
-</header>
-
-<div id="chat"></div>
-<div id="loading" style="display:none; padding: 5px 20px; font-size: 12px; color: #888;">Thinking...</div>
-
-<div class="input-area">
-    <div class="input-container">
-        <input type="text" id="userInput" placeholder="Ask ZaleGAI..." autocomplete="off">
-        <button id="send">🚀</button>
-    </div>
-</div>
-
-<div id="settingsModal" class="modal">
-    <div class="modal-content">
-        <h2>Settings</h2>
-        <div class="setting-item">
-            <label>API Key</label>
-            <input type="text" id="apiKeyInput" placeholder="Paste Gemini Key Here">
-        </div>
-        <button id="saveBtn" style="width:100%; padding:14px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:bold;">SAVE SETTINGS</button>
-        <button id="themeBtn" style="width:100%; padding:10px; margin-top:10px; border:1px solid #ccc; background:none; color:inherit; border-radius:8px;">🌗 TOGGLE DARK MODE</button>
-        <button id="closeSettings" style="width:100%; margin-top:15px; color:#888; border:none; background:none;">Close</button>
-    </div>
-</div>
-
-<script>
-    let API_KEY = localStorage.getItem('zalegai_key') || "";
-    let chatHistory = [];
-
-    window.onload = () => {
-        document.getElementById('apiKeyInput').value = API_KEY;
-        if(localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
-
-        addMessage("ZaleGAI 1.0 is ready. Make sure your API key is in the ⚙️ settings!", "bot");
-
-        // Event Listeners
-        document.getElementById('openSettings').onclick = () => document.getElementById('settingsModal').style.display = 'block';
-        document.getElementById('closeSettings').onclick = () => document.getElementById('settingsModal').style.display = 'none';
-        document.getElementById('themeBtn').onclick = toggleTheme;
-        document.getElementById('saveBtn').onclick = saveSettings;
-        document.getElementById('send').onclick = askAI;
-        document.getElementById('userInput').onkeypress = (e) => { if(e.key === 'Enter') askAI(); };
-    };
-
-    function saveSettings() {
-        API_KEY = document.getElementById('apiKeyInput').value.trim();
-        localStorage.setItem('zalegai_key', API_KEY);
-        document.getElementById('settingsModal').style.display = 'none';
-        alert("Saved!");
-    }
-
-    function toggleTheme() {
-        const isDark = document.body.hasAttribute('data-theme');
-        document.body.toggleAttribute('data-theme');
-        localStorage.setItem('theme', isDark ? 'light' : 'dark');
-    }
-
-    function addMessage(text, sender) {
-        const div = document.createElement('div');
-        div.className = `msg ${sender}`;
-        div.innerHTML = (sender === 'bot') ? marked.parse(text) : text;
-        document.getElementById('chat').appendChild(div);
-        document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
-        div.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
-    }
-
-    async function askAI() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
-        if (!text || !API_KEY) return;
-
-        addMessage(text, 'user');
-        chatHistory.push({ role: "user", parts: [{ text: text }] });
-        input.value = "";
-        document.getElementById('loading').style.display = 'block';
-
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: chatHistory })
-            });
-            const data = await response.json();
-            const aiText = data.candidates[0].content.parts[0].text;
-            chatHistory.push({ role: "model", parts: [{ text: aiText }] });
-            addMessage(aiText, 'bot');
-        } catch (e) {
-            addMessage("❌ Connection Error. Check your API Key.", "bot");
-        } finally {
-            document.getElementById('loading').style.display = 'none';
+        /* MOBILE VIEWPORT FIX */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
-    }
-</script>
-</body>
-</html>
+
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100dvh; /* Dynamic height for mobile browsers */
+        }
+
+        header { 
+            padding: env(safe-area-inset-top) 15px 12px; 
+            background: var(--header); 
+            color: white; 
+            text-align: center; 
+            font-weight: bold; 
+            flex-shrink: 0;
+            
