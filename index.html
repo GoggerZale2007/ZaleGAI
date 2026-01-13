@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ZaleGAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        #chat { height: 300px; overflow-y: scroll; background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        input { width: 70%; padding: 10px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <div id="chat"><b>Bot:</b> Hello! Type something below.</div>
+    <input type="text" id="userInput" placeholder="Ask me anything...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chat = document.getElementById('chat');
+            chat.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
+            
+            // This is where you would connect to an AI API later
+            setTimeout(() => {
+                chat.innerHTML += `<p><b>Bot:</b> I heard you say "${input.value}"!</p>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 500);
+
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
