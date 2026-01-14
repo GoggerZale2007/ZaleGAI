@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZaleGAI V6.0 | Grand Edition</title>
+    <title>ZaleGAI Elite V6.0</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
@@ -13,36 +13,17 @@
             --b: rgba(255,255,255,0.07); --err: #ff4a4a;
         }
 
-        /* --- CORE ARCHITECTURE --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background: var(--bg); color: var(--t); font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg); color: var(--t); font-family: 'Inter', system-ui, sans-serif;
             position: fixed; touch-action: manipulation;
         }
 
-        /* --- VISUAL STACK --- */
         .aether { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 50%, #10a37f12, transparent); }
-        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.05"/></svg>'); opacity: 0.2; pointer-events: none; }
+        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.05"/></svg>'); opacity: 0.15; pointer-events: none; }
 
-        /* --- SIDEBAR & NAV --- */
-        #side { 
-            position: fixed; left: -320px; top: 0; bottom: 0; width: 300px; 
-            background: var(--s); border-right: 1px solid var(--b); z-index: 1000; 
-            display: flex; flex-direction: column; padding: 25px; transition: none;
-        }
-        .over { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; z-index: 999; backdrop-filter: blur(10px); }
-        
-        .label { font-size: 10px; font-weight: 800; color: #555; text-transform: uppercase; letter-spacing: 2.5px; margin: 25px 0 12px; }
-        .nav { 
-            padding: 13px 18px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; 
-            gap: 12px; font-size: 14px; transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; opacity: 0; transform: translateX(-30px);
-        }
-        .nav:hover { background: var(--g); border-color: var(--b); color: #fff; }
-        .nav.active { background: var(--p-dim); border-color: var(--p); color: var(--p); }
-        .exit { margin-top: auto; color: var(--err); border: 1px solid rgba(255,74,74,0.1); }
-
-        /* --- CHAT ENGINE --- */
+        /* --- UI COMPONENTS --- */
         .app { display: flex; flex-direction: column; height: 100dvh; width: 100vw; }
         header { 
             padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
@@ -51,101 +32,103 @@
         }
 
         #chat { 
-            flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 26px;
-            max-width: 850px; margin: 0 auto; width: 100%; overscroll-behavior: contain;
+            flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 20px;
+            max-width: 850px; margin: 0 auto; width: 100%;
         }
-        .row { display: flex; width: 100%; gap: 14px; opacity: 0; transform: translateY(25px); }
+
+        /* --- MESSAGES --- */
+        .row { display: flex; width: 100%; gap: 14px; opacity: 0; transform: translateY(20px); }
         .u-row { justify-content: flex-end; }
-        .bubble { max-width: 85%; padding: 18px 24px; border-radius: 22px; font-size: 15px; line-height: 1.6; border: 1px solid var(--b); position: relative; }
-        .bot-b { background: var(--g); border-left: 4px solid var(--p); border-top-left-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .bubble { max-width: 85%; padding: 18px 24px; border-radius: 22px; font-size: 15px; border: 1px solid var(--b); line-height: 1.6; }
+        .bot-b { background: var(--g); border-left: 4px solid var(--p); border-top-left-radius: 4px; }
         .u-b { background: var(--p); color: #fff; border: none; border-bottom-right-radius: 4px; box-shadow: 0 10px 25px -10px var(--p); }
 
-        /* --- REMINDER BLOCK --- */
-        #api-reminder { 
-            background: var(--p-dim); border: 1.5px dashed var(--p); border-radius: 24px; 
-            padding: 40px 20px; text-align: center; margin-bottom: 20px; 
+        /* --- SETTINGS MODAL --- */
+        .modal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; 
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px);
+        }
+        .m-content { 
+            width: 90%; max-width: 450px; background: var(--s); border: 1px solid var(--b);
+            border-radius: 28px; padding: 30px; position: relative;
         }
 
-        /* --- INPUT SYSTEM --- */
-        .deck { padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); background: linear-gradient(0deg, var(--bg) 0%, transparent 100%); }
+        /* --- INPUTS --- */
+        .label { font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; letter-spacing: 2px; margin: 15px 0 8px; }
+        select, input[type="text"] { 
+            width: 100%; background: #151515; color: #fff; border: 1px solid var(--b); 
+            padding: 14px; border-radius: 12px; margin-bottom: 5px; font-size: 14px;
+        }
+
+        .deck { padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
         .box { 
             max-width: 850px; margin: 0 auto; background: #121212; border-radius: 40px; 
-            padding: 8px 14px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
-            transition: border 0.3s;
+            padding: 8px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
         }
-        .box:focus-within { border-color: var(--p); }
-        input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; outline: none; font-size: 16px; min-width: 0; }
-        
         .btn { 
             width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
-            background: var(--g); color: #fff; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            flex-shrink: 0; font-size: 20px;
+            background: var(--g); color: #fff; transition: 0.3s; flex-shrink: 0;
         }
-        .btn:active { transform: scale(0.9); }
-        .send { background: var(--p); box-shadow: 0 8px 15px -5px var(--p); }
-
-        /* --- ANIMATED VIZ --- */
-        .viz { display: none; height: 16px; align-items: flex-end; gap: 3px; margin-left: 12px; }
-        .bar { width: 3px; height: 4px; background: var(--p); border-radius: 10px; }
-
-        /* --- SELECTS & UI --- */
-        select { width: 100%; background: #151515; color: #fff; border: 1px solid var(--b); padding: 14px; border-radius: 12px; appearance: none; cursor: pointer; }
+        .send { background: var(--p); box-shadow: 0 5px 15px -5px var(--p); }
+        #api-reminder { background: var(--p-dim); border: 1.5px dashed var(--p); border-radius: 24px; padding: 40px 20px; text-align: center; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="aether"></div><div class="grain"></div>
-    <div class="over" id="over" onclick="toggleMenu()"></div>
 
-    <aside id="side">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <span style="font-weight:900; color:var(--p); font-size:1.5rem; letter-spacing:-0.5px;">ZALEGAI 6.0</span>
-            <button onclick="toggleMenu()" style="background:none; border:none; color:#666; font-size:32px; cursor:pointer;">&times;</button>
+    <div class="modal" id="setModal">
+        <div class="m-content">
+            <h2 style="margin-top:0; color:var(--p);">Settings</h2>
+            
+            <p class="label">Bot Personality</p>
+            <select id="pSelect">
+                <option value="Helpful Assistant">Friendly Assistant</option>
+                <option value="Sarcastic Hacker">Cyber Shadow</option>
+                <option value="Professional Architect">System Architect</option>
+                <option value="Creative Poet">Muse Engine</option>
+            </select>
+
+            <p class="label">API Gateway</p>
+            <select id="apiBase">
+                <option value="https://api.groq.com/openai/v1">Groq AI</option>
+                <option value="https://api.openai.com/v1">OpenAI</option>
+                <option value="https://openrouter.ai/api/v1">OpenRouter</option>
+            </select>
+
+            <p class="label">Target Language</p>
+            <select id="langSelect" onchange="updateUI()">
+                <option value="English">English</option>
+                <option value="Vietnamese">Tiếng Việt</option>
+            </select>
+
+            <p class="label">Custom Bot Name</p>
+            <input type="text" id="botName" placeholder="ZaleGAI Core">
+
+            <button onclick="saveSettings()" style="width:100%; margin-top:20px; background:var(--p); color:white; border:none; padding:15px; border-radius:12px; font-weight:800; cursor:pointer;">Save Changes</button>
+            <button onclick="toggleModal()" style="width:100%; margin-top:10px; background:transparent; color:#555; border:none; cursor:pointer;">Cancel</button>
         </div>
-
-        <p class="label">Identity Matrix</p>
-        <div class="nav active" onclick="setPer('Standard', this)">🛡️ Neural Core</div>
-        <div class="nav" onclick="setPer('Hacker', this)">⚡ Cyber Shadow</div>
-        <div class="nav" onclick="setPer('Architect', this)">🏛️ System Architect</div>
-        <div class="nav" onclick="setPer('Creative', this)">🎨 Muse Engine</div>
-
-        <p class="label">Language Flux</p>
-        <select id="lang">
-            <option value="English">English</option>
-            <option value="Vietnamese">Tiếng Việt</option>
-            <option value="Spanish">Español</option>
-            <option value="French">Français</option>
-            <option value="Japanese">日本語</option>
-            <option value="Arabic">العربية</option>
-        </select>
-
-        <p class="label">Global Controls</p>
-        <div class="nav" onclick="resetData()">🗑️ Purge Memories</div>
-        <button class="nav exit" onclick="terminate()">🚪 Terminate Session</button>
-    </aside>
+    </div>
 
     <div class="app">
         <header>
-            <button class="btn" onclick="toggleMenu()">☰</button>
-            <div style="display:flex; align-items:center; font-weight:900;">
-                ZALEGAI <span id="pTag" style="font-size:10px; margin-left:8px; opacity:0.4;">CORE</span>
-                <div class="viz" id="viz"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-            </div>
-            <button class="btn" onclick="promptKey()">⚙️</button>
+            <button class="btn" onclick="alert('Menu Expansion Placeholder')">☰</button>
+            <div style="display:flex; align-items:center; font-weight:900;" id="titleTag">ZALEGAI CORE</div>
+            <button class="btn" onclick="toggleModal()">⚙️</button>
         </header>
 
         <div id="chat">
-            <div id="api-reminder" style="display:none;">
+            <div id="api-reminder">
                 <div style="font-size:32px; margin-bottom:15px;">🔒</div>
-                <p style="color:var(--p); font-weight:800; margin:0 0 10px 0; font-size:1.1rem;">Neural Link Offline</p>
-                <p style="font-size:13px; opacity:0.6; margin-bottom:25px; line-height:1.5; padding:0 20px;">Intelligence requires a secure Groq API key to process neural requests.</p>
-                <button onclick="promptKey()" style="background:var(--p); color:white; border:none; padding:15px 35px; border-radius:40px; font-weight:900; cursor:pointer; width:80%;">Enter API Key</button>
+                <p id="remindTitle" style="color:var(--p); font-weight:800; margin:0 0 10px 0;">Neural Link Offline</p>
+                <p id="remindText" style="font-size:13px; opacity:0.6; margin-bottom:25px;">Intelligence requires a secure API key.</p>
+                <button onclick="setKey()" style="background:var(--p); color:white; border:none; padding:15px 35px; border-radius:40px; font-weight:900; cursor:pointer; width:80%;">Enter API Key</button>
             </div>
         </div>
 
         <div class="deck">
             <div class="box">
-                <button class="btn" id="mBtn" onclick="toggleVoice()">🎙️</button>
+                <button class="btn">🎙️</button>
                 <input type="text" id="userInput" placeholder="Ask anything..." autocomplete="off">
                 <button class="btn send" onclick="handleSend()">↑</button>
             </div>
@@ -153,107 +136,75 @@
     </div>
 
     <script>
-        /* --- STATE MANAGER --- */
-        let memory = JSON.parse(localStorage.getItem('zalegai_v6_mem')) || [];
-        let currentPersona = "Standard";
-        let speech;
-
-        /* --- VOICE ENGINE --- */
-        if('webkitSpeechRecognition' in window) {
-            speech = new webkitSpeechRecognition();
-            speech.continuous = false;
-            speech.interimResults = false;
-            speech.onstart = () => {
-                document.getElementById('viz').style.display = 'flex';
-                gsap.to(".bar", { height: 16, duration: 0.4, stagger: 0.1, repeat: -1, yoyo: true });
-            };
-            speech.onresult = (e) => {
-                document.getElementById('userInput').value = e.results[0][0].transcript;
-                handleSend();
-            };
-            speech.onend = () => document.getElementById('viz').style.display = 'none';
-        }
-
-        /* --- BOOTSTRAP --- */
-        window.onload = () => {
-            initAPI();
-            memory.forEach(m => renderMessage(m.content, m.role, true));
-            if(!memory.length) renderMessage("ZaleGAI Elite V6.0 online. Language: **English / Vietnamese**.", "bot");
+        let memory = JSON.parse(localStorage.getItem('z_mem')) || [];
+        const trans = {
+            English: { welcome: "ZaleGAI Elite V6.0 online.", prompt: "Ask anything...", rT: "Neural Link Offline", rD: "Intelligence requires an API key." },
+            Vietnamese: { welcome: "ZaleGAI Elite V6.0 đã trực tuyến.", prompt: "Hỏi bất cứ điều gì...", rT: "Liên Kết Thần Kinh Ngoại Tuyến", rD: "Trí tuệ nhân tạo cần có khóa API." }
         };
 
-        function initAPI() {
-            const k = localStorage.getItem('zalegai_v6_key');
+        window.onload = () => {
+            const k = localStorage.getItem('z_key');
             document.getElementById('api-reminder').style.display = k ? 'none' : 'block';
-            if(!k) gsap.from("#api-reminder", { opacity:0, scale:0.95, duration:0.6, ease:"back.out" });
+            updateUI();
+            memory.forEach(m => render(m.content, m.role, true));
+            if(!memory.length) render(trans[getL()].welcome, "bot");
+        };
+
+        function getL() { return document.getElementById('langSelect').value; }
+
+        function updateUI() {
+            const l = getL();
+            document.getElementById('userInput').placeholder = trans[l].prompt;
+            document.getElementById('remindTitle').innerText = trans[l].rT;
+            document.getElementById('remindText').innerText = trans[l].rD;
         }
 
-        /* --- UI LOGIC --- */
-        function toggleMenu() {
-            const side = document.getElementById('side');
-            const isOpen = side.style.left === "0px";
-            gsap.to(side, { left: isOpen ? -320 : 0, duration: 0.5, ease: "expo.out" });
-            gsap.to(".nav", { opacity: isOpen ? 0 : 1, x: isOpen ? -30 : 0, stagger: 0.05, delay: isOpen ? 0 : 0.2 });
-            document.getElementById('over').style.display = isOpen ? "none" : "block";
+        function toggleModal() { 
+            const m = document.getElementById('setModal');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function saveSettings() {
+            localStorage.setItem('z_settings', JSON.stringify({
+                persona: document.getElementById('pSelect').value,
+                lang: document.getElementById('langSelect').value,
+                name: document.getElementById('botName').value
+            }));
+            document.getElementById('titleTag').innerText = document.getElementById('botName').value.toUpperCase() || "ZALEGAI CORE";
+            toggleModal();
+            updateUI();
         }
 
         async function handleSend() {
-            const key = localStorage.getItem('zalegai_v6_key');
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            if(!key || !text) return !key ? promptKey() : null;
+            const k = localStorage.getItem('z_key'), input = document.getElementById('userInput'), text = input.value.trim();
+            if(!k || !text) return !k ? setKey() : null;
+            render(text, 'user'); input.value = "";
             
-            renderMessage(text, 'user');
-            input.value = "";
-            
-            const lang = document.getElementById('lang').value;
-            const system = `Identity: ${currentPersona}. Language: ${lang}. Response Style: Professional, concise, markdown.`;
-            
+            const sets = JSON.parse(localStorage.getItem('z_settings')) || { persona: "Helpful", lang: "English" };
             memory.push({role: "user", content: text});
 
             try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [{role: "system", content: system}, ...memory.slice(-12)]
-                    })
+                const res = await fetch(`${document.getElementById('apiBase').value}/chat/completions`, {
+                    method: "POST", headers: { "Authorization": `Bearer ${k}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{role: "system", content: `You are ${sets.persona}. Respond in ${sets.lang}.`}, ...memory.slice(-10)]})
                 });
-                const data = await res.json();
-                const reply = data.choices[0].message.content;
-                renderMessage(reply, 'bot');
-                memory.push({role: "assistant", content: reply});
-                localStorage.setItem('zalegai_v6_mem', JSON.stringify(memory.slice(-25)));
-            } catch(e) { renderMessage("⚠️ **Neural Error:** Check API Key or Connection.", "bot"); }
+                const d = await res.json();
+                const r = d.choices[0].message.content;
+                render(r, 'bot'); memory.push({role: "assistant", content: r});
+                localStorage.setItem('z_mem', JSON.stringify(memory.slice(-20)));
+            } catch(e) { render("⚠️ Neural Error.", "bot"); }
         }
 
-        function renderMessage(t, r, instant) {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
+        function render(t, r, fast) {
+            const chat = document.getElementById('chat'), div = document.createElement('div');
             div.className = `row ${r === 'user' ? 'u-row' : ''}`;
-            div.innerHTML = `<div class="bubble ${r === 'user' ? 'u-b' : 'bot-b'}">${r === 'bot' || r === 'assistant' ? marked.parse(t) : t}</div>`;
+            div.innerHTML = `<div class="bubble ${r === 'user' ? 'u-b' : 'bot-b'}">${r === 'bot' ? marked.parse(t) : t}</div>`;
             chat.appendChild(div);
-            gsap.to(div, { opacity: 1, y: 0, duration: instant ? 0 : 0.5, ease: "power2.out" });
-            chat.scrollTo({ top: chat.scrollHeight, behavior: instant ? 'auto' : 'smooth' });
+            gsap.to(div, { opacity: 1, y: 0, duration: fast ? 0 : 0.4 });
+            chat.scrollTo({ top: chat.scrollHeight, behavior: fast ? 'auto' : 'smooth' });
         }
 
-        /* --- SETTINGS --- */
-        function promptKey() { 
-            const k = prompt("Enter Groq API Key:"); 
-            if(k) { localStorage.setItem('zalegai_v6_key', k); location.reload(); } 
-        }
-        function setPer(p, el) {
-            currentPersona = p;
-            document.querySelectorAll('.nav').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('pTag').innerText = p.toUpperCase();
-            toggleMenu();
-        }
-        function toggleVoice() { speech ? speech.start() : alert("Voice API Unsupported."); }
-        function resetData() { if(confirm("Wipe all data?")) { localStorage.clear(); location.reload(); } }
-        function terminate() { if(confirm("Exit?")) document.body.innerHTML = "<div style='color:var(--p);text-align:center;margin-top:45vh;font-weight:900;'>ENCRYPTED OFFLINE</div>"; }
-        
-        document.getElementById('userInput').addEventListener('keypress', (e) => e.key === 'Enter' && handleSend());
+        function setKey() { const k = prompt("Enter API Key:"); if(k) { localStorage.setItem('z_key', k); location.reload(); } }
     </script>
 </body>
 </html>
