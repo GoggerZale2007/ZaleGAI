@@ -48,7 +48,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: none;
         }
 
-        /* --- SIDEBAR & CHATGPT CONVERSATIONS --- */
+        /* --- SIDEBAR & CONVERSATIONS --- */
         #side { 
             position: fixed; left: -320px; top: 0; bottom: 0; width: 300px; 
             background: rgba(8, 8, 18, 0.98); backdrop-filter: blur(30px); border-right: 1px solid var(--b); z-index: 2000; 
@@ -80,7 +80,7 @@
         .bot-b { background: var(--g); border-left: 4px solid var(--p); border-top-left-radius: 4px; }
         .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; border: none; border-bottom-right-radius: 4px; box-shadow: 0 10px 25px -10px var(--p); }
 
-        /* --- INPUTS & SQUISH-PROOF BUTTONS --- */
+        /* --- INPUTS & BUTTONS --- */
         .deck { padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
         .box { 
             max-width: 850px; margin: 0 auto; background: rgba(15, 15, 30, 0.8); border-radius: 40px; 
@@ -92,38 +92,38 @@
         .btn { 
             width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
-            background: var(--g); color: #fff; transition: 0.3s; flex-shrink: 0; /* Locked size */
+            background: var(--g); color: #fff; transition: 0.3s; flex-shrink: 0;
         }
         .btn:active { transform: scale(0.9); }
         .send { background: var(--p); }
 
         /* --- SETTINGS SECTIONS --- */
         .section-card { background: var(--g); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--b); }
-        .img-preview { width: 100%; border-radius: 15px; margin-top: 10px; display: block; }
+        .img-preview { width: 100%; border-radius: 15px; margin-top: 10px; display: block; border: 1px solid var(--b); }
     </style>
 </head>
 <body>
     <div class="flux"></div><div class="grain"></div>
-    <div id="notify"><span id="not-icon">⚠️</span><span id="not-msg">System Message</span></div>
+    <div id="notify"><span id="not-icon">⚠️</span><span id="not-msg">System</span></div>
     <div class="over" id="over" onclick="toggleMenu()"></div>
 
     <div class="modal" id="setModal">
         <div class="m-content">
-            <h2 style="margin:0 0 20px; color:var(--p); font-weight:900;">System Config</h2>
+            <h2 style="margin:0 0 20px; color:var(--p); font-weight:900;">Settings</h2>
             
             <div class="section-card">
-                <p class="label" style="margin-top:0;">Neural Link</p>
-                <input type="password" id="apiKeyIn" placeholder="Enter Groq API Key" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white;">
+                <p class="label" style="margin-top:0;">1. Neural Link (API)</p>
+                <input type="password" id="apiKeyIn" placeholder="Enter API Key" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white;">
             </div>
 
             <div class="section-card">
-                <p class="label" style="margin-top:0;">Bot Setup</p>
+                <p class="label" style="margin-top:0;">2. Bot Persona & Logic</p>
                 <select id="botType" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white; appearance:none;">
-                    <option value="fast">⚡ Neural Fast (Llama 3)</option>
+                    <option value="fast">⚡ Fast (Neural 3.3)</option>
                     <option value="research">🔍 Research (DeepThink)</option>
                     <option value="nerd">🤓 Technical Nerd</option>
                 </select>
-                <p class="label">Primary Language</p>
+                <p class="label">Language Flux</p>
                 <select id="langIn" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white; appearance:none;">
                     <option value="en">English</option>
                     <option value="vi">Tiếng Việt</option>
@@ -131,12 +131,12 @@
             </div>
 
             <div class="section-card">
-                <p class="label" style="margin-top:0;">Storage</p>
-                <button onclick="clearCloud()" style="width:100%; background:transparent; border:1px solid var(--err); color:var(--err); padding:10px; border-radius:10px; cursor:pointer;">Wipe All Conversations</button>
+                <p class="label" style="margin-top:0;">3. Data Control</p>
+                <button onclick="wipeStorage()" style="width:100%; background:transparent; border:1px solid var(--err); color:var(--err); padding:10px; border-radius:10px; cursor:pointer;">Clear All History</button>
             </div>
 
-            <button onclick="saveAll()" style="width:100%; background:var(--p); color:white; border:none; padding:15px; border-radius:15px; font-weight:900; cursor:pointer;">Apply Changes</button>
-            <button onclick="closeModal()" style="width:100%; background:transparent; color:#555; border:none; margin-top:10px; cursor:pointer;">Discard</button>
+            <button onclick="saveSettings()" style="width:100%; background:var(--p); color:white; border:none; padding:15px; border-radius:15px; font-weight:900; cursor:pointer;">Update Neural Node</button>
+            <button onclick="closeModal()" style="width:100%; background:transparent; color:#555; border:none; margin-top:10px; cursor:pointer;">Back</button>
         </div>
     </div>
 
@@ -145,8 +145,8 @@
             <span style="font-weight:900; color:var(--p); font-size:1.5rem;">ZALEGAI</span>
             <button onclick="toggleMenu()" style="background:none; border:none; color:#555; font-size:30px;">&times;</button>
         </div>
-        <button class="convo-item" style="margin-top:25px; border:1px solid var(--p); text-align:center;" onclick="newConvo()">+ New Chat</button>
-        <p class="label">Recent Conversations</p>
+        <button class="convo-item" style="margin-top:25px; border:1px solid var(--p); text-align:center;" onclick="newConvo()">+ New Conversation</button>
+        <p class="label">Chat History</p>
         <div class="convo-list" id="convoList"></div>
     </aside>
 
@@ -161,8 +161,8 @@
 
         <div class="deck">
             <div class="box">
-                <button class="btn" onclick="pop('Attachment logic ready','📎')">📎</button>
-                <input type="text" id="userInput" placeholder="Ask anything or 'draw'...">
+                <button class="btn" onclick="pop('Attachment node ready','📎')">📎</button>
+                <input type="text" id="userInput" placeholder="Ask or type 'draw'...">
                 <button class="btn" id="voiceBtn" onclick="toggleVoice()">🔊</button>
                 <button class="btn send" onclick="handleSend()">↑</button>
             </div>
@@ -170,7 +170,7 @@
     </div>
 
     <script>
-        let conversations = JSON.parse(localStorage.getItem('z_convos')) || [];
+        let conversations = JSON.parse(localStorage.getItem('z_v7_convos')) || [];
         let curId = null, voiceOn = true;
 
         window.onload = () => {
@@ -183,7 +183,7 @@
             const n = document.getElementById('notify');
             document.getElementById('not-icon').innerText = icon;
             document.getElementById('not-msg').innerText = msg;
-            gsap.to(n, { y: 140, opacity: 1, duration: 0.5, ease: "back.out" });
+            gsap.to(n, { y: 140, opacity: 1, duration: 0.5 });
             setTimeout(() => gsap.to(n, { y: 0, opacity: 0, duration: 0.5 }), 3000);
         }
 
@@ -201,18 +201,18 @@
 
         function closeModal() { document.getElementById('setModal').style.display = 'none'; }
 
-        function saveAll() {
+        function saveSettings() {
             localStorage.setItem('z_key', document.getElementById('apiKeyIn').value);
             localStorage.setItem('z_type', document.getElementById('botType').value);
             localStorage.setItem('z_lang', document.getElementById('langIn').value);
-            pop("System Updated", "✅");
+            pop("Settings applied", "✅");
             closeModal();
             setTimeout(() => location.reload(), 800);
         }
 
         function newConvo() {
             curId = Date.now();
-            conversations.unshift({ id: curId, title: "New Session", msgs: [] });
+            conversations.unshift({ id: curId, title: "New Chat", msgs: [] });
             saveData(); loadChat(curId);
             if(window.innerWidth < 800) toggleMenu();
         }
@@ -228,14 +228,13 @@
         async function handleSend() {
             const input = document.getElementById('userInput'), text = input.value.trim();
             const key = localStorage.getItem('z_key');
-            if(!key || !text) return !key ? openSettings() : pop("Enter a prompt");
+            if(!key || !text) return !key ? openSettings() : pop("Enter a message");
 
             const chat = conversations.find(c => c.id === curId);
-            if(chat.title === "New Session") chat.title = text.substring(0, 20);
+            if(chat.title === "New Chat") chat.title = text.substring(0, 22);
 
-            // Image Gen Hook
             if(text.toLowerCase().startsWith('draw') || text.toLowerCase().startsWith('vẽ')) {
-                render(`Generating: ${text}...`, 'bot');
+                render(`Generating art: ${text}...`, 'bot');
                 const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
                 setTimeout(() => {
                     render(imgUrl, 'bot', false, true);
@@ -255,7 +254,7 @@
                     headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
-                        messages: [{role: "system", content: `Type: ${localStorage.getItem('z_type')}. Lang: ${localStorage.getItem('z_lang')}`}, ...chat.msgs.slice(-10)]
+                        messages: [{role: "system", content: `Engine: ${localStorage.getItem('z_type')}. Language: ${localStorage.getItem('z_lang')}`}, ...chat.msgs.slice(-10)]
                     })
                 });
                 const data = await res.json();
@@ -264,7 +263,7 @@
                 chat.msgs.push({role: 'assistant', content: reply});
                 if(voiceOn) speak(reply);
                 saveData(); updateSidebar();
-            } catch(e) { pop("API Error - Check Key"); }
+            } catch(e) { pop("Link Interrupted"); }
         }
 
         function render(t, r, fast, isImg) {
@@ -295,9 +294,9 @@
             });
         }
 
-        function toggleVoice() { voiceOn = !voiceOn; pop(voiceOn ? "Voice Enabled" : "Voice Muted", "🔊"); }
-        function saveData() { localStorage.setItem('z_convos', JSON.stringify(conversations)); }
-        function clearCloud() { if(confirm("Permanently delete all chats?")) { localStorage.clear(); location.reload(); } }
+        function toggleVoice() { voiceOn = !voiceOn; pop(voiceOn ? "Voice Online" : "Voice Offline", "🔊"); }
+        function saveData() { localStorage.setItem('z_v7_convos', JSON.stringify(conversations)); }
+        function wipeStorage() { pop("Purging data...", "🗑️"); localStorage.clear(); setTimeout(() => location.reload(), 1000); }
         document.getElementById('userInput').addEventListener('keypress', (e) => e.key === 'Enter' && handleSend());
     </script>
 </body>
