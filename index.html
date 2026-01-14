@@ -3,262 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZaleGAI Elite V7.0</title>
+    <title>ZaleGAI V7.0 Elite</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         :root { 
-            --p: #8b5cf6; --p-dim: rgba(139, 92, 246, 0.1); --bg: #03000a; 
-            --s: #0d0d1a; --t: #f1f1f1; --g: rgba(255,255,255,0.04); 
-            --b: rgba(255,255,255,0.08); --err: #ff4a4a; --cyan: #06b6d4;
+            --p: #8b5cf6; --p2: #6366f1; --bg: #03000a; --s: #0a0a15; 
+            --t: #f1f1f1; --g: rgba(255,255,255,0.05); --b: rgba(255,255,255,0.1);
         }
 
-        /* --- CORE ARCHITECTURE --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
             background: var(--bg); color: var(--t); font-family: 'Inter', system-ui, sans-serif;
+            position: fixed;
         }
 
-        /* --- ANIMATED FLUX BACKGROUND --- */
+        /* --- HYPER-MOTION BACKGROUND --- */
         .flux {
             position: fixed; inset: 0; z-index: -2;
-            background: linear-gradient(125deg, #3b0764, #1e1b4b, #020617, #581c87);
-            background-size: 400% 400%;
-            animation: fluxGradient 15s ease infinite;
+            background: radial-gradient(circle at 20% 30%, #3b0764 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, #1e1b4b 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, #020617 0%, #000 100%);
+            animation: fluxMotion 10s infinite alternate ease-in-out;
         }
-        @keyframes fluxGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.1"/></svg>'); pointer-events: none; }
+        @keyframes fluxMotion { 0% { filter: hue-rotate(0deg); transform: scale(1); } 100% { filter: hue-rotate(30deg); transform: scale(1.1); } }
+        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.1"/></svg>'); opacity: 0.2; pointer-events: none; }
 
-        /* --- CHATGPT STYLE SIDEBAR --- */
-        #sidebar {
-            position: fixed; left: -300px; top: 0; bottom: 0; width: 280px;
-            background: rgba(13, 13, 26, 0.95); backdrop-filter: blur(20px);
-            border-right: 1px solid var(--b); z-index: 2000; padding: 20px;
-            display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        /* --- SIDEBAR & CONVERSATIONS --- */
+        #side { 
+            position: fixed; left: -320px; top: 0; bottom: 0; width: 300px; 
+            background: rgba(10, 10, 21, 0.95); backdrop-filter: blur(25px); border-right: 1px solid var(--b); z-index: 1000; 
+            display: flex; flex-direction: column; padding: 25px;
         }
-        #sidebar.open { transform: translateX(300px); }
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1999; display: none; }
-
-        .new-chat {
-            border: 1px solid var(--b); border-radius: 10px; padding: 12px;
-            display: flex; align-items: center; gap: 10px; cursor: pointer;
-            transition: 0.3s; font-size: 14px; margin-bottom: 20px;
-        }
-        .new-chat:hover { background: var(--g); }
+        .over { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 999; backdrop-filter: blur(8px); }
+        .label { font-size: 10px; font-weight: 800; color: var(--p); text-transform: uppercase; letter-spacing: 2px; margin: 25px 0 12px; }
         
-        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .convo-item {
-            padding: 10px; border-radius: 8px; font-size: 13px; cursor: pointer;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            color: #aaa; transition: 0.2s;
+        .convo-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .convo-item { 
+            padding: 12px; border-radius: 12px; background: var(--g); border: 1px solid transparent; 
+            font-size: 13px; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .convo-item:hover, .convo-item.active { background: var(--p-dim); color: #fff; }
+        .convo-item.active { border-color: var(--p); background: var(--p-dim); color: #fff; }
 
-        /* --- INTERNAL UI ELEMENTS --- */
+        /* --- CHAT INTERFACE --- */
+        .app { display: flex; flex-direction: column; height: 100dvh; width: 100vw; }
+        header { 
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(3,0,10,0.6); backdrop-filter: blur(20px); border-bottom: 1px solid var(--b);
+            padding-top: env(safe-area-inset-top);
+        }
+
+        #chat { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 24px; max-width: 850px; margin: 0 auto; width: 100%; }
+        .row { display: flex; width: 100%; gap: 14px; opacity: 0; transform: translateY(20px); }
+        .u-row { justify-content: flex-end; }
+        .bubble { max-width: 85%; padding: 18px 24px; border-radius: 22px; font-size: 15px; border: 1px solid var(--b); line-height: 1.6; position: relative; }
+        .bot-b { background: var(--g); border-left: 4px solid var(--p); border-top-left-radius: 4px; }
+        .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; border: none; border-bottom-right-radius: 4px; box-shadow: 0 10px 25px -10px var(--p); }
+
+        /* --- INTERNAL NOTIFICATIONS --- */
         #notify {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: var(--s); border: 1px solid var(--b); border-top: 3px solid var(--p);
-            padding: 15px 25px; border-radius: 15px; z-index: 3000; display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); pointer-events: none; opacity: 0;
+            padding: 15px 25px; border-radius: 15px; z-index: 3000; display: flex; align-items: center; gap: 12px; opacity: 0;
         }
 
-        .app { display: flex; flex-direction: column; height: 100dvh; width: 100vw; position: relative; }
-        header { 
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(3,0,10,0.4); backdrop-filter: blur(15px); border-bottom: 1px solid var(--b);
-        }
-
-        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
-        
-        /* --- MESSAGE BUBBLES --- */
-        .row { display: flex; width: 100%; gap: 12px; opacity: 0; transform: translateY(15px); }
-        .u-row { justify-content: flex-end; }
-        .bubble { max-width: 85%; padding: 15px 20px; border-radius: 18px; font-size: 15px; border: 1px solid var(--b); line-height: 1.5; }
-        .bot-b { background: rgba(255,255,255,0.03); border-left: 3px solid var(--p); }
-        .u-b { background: var(--p); color: #fff; border: none; box-shadow: 0 8px 20px -8px var(--p); }
-        
-        .attachment-preview { font-size: 11px; margin-top: 8px; color: var(--cyan); display: flex; align-items: center; gap: 5px; }
-
-        /* --- INPUT SYSTEM --- */
-        .deck { padding: 20px; background: linear-gradient(0deg, var(--bg) 30%, transparent); }
+        /* --- INPUT & BUTTONS (NO SQUISH) --- */
+        .deck { padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
         .box { 
-            max-width: 800px; margin: 0 auto; background: rgba(20, 20, 40, 0.8); border-radius: 25px; 
-            padding: 10px 15px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
+            max-width: 850px; margin: 0 auto; background: rgba(10, 10, 20, 0.8); border-radius: 40px; 
+            padding: 8px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
         }
-        input[type="text"] { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; font-size: 16px; }
+        input { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; font-size: 16px; min-width: 0; }
         
-        .btn { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: transparent; color: #aaa; transition: 0.2s; }
-        .btn:hover { color: var(--p); background: var(--g); }
-        .send-btn { background: var(--p); color: #fff; }
+        .btn { 
+            width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            background: var(--g); color: #fff; transition: 0.3s; flex-shrink: 0; /* LOCK SIZE */
+        }
+        .send { background: var(--p); box-shadow: 0 5px 15px -5px var(--p); }
+        
+        .gen-img { width: 100%; border-radius: 15px; margin-top: 10px; border: 1px solid var(--b); }
 
-        #file-indicator { display: none; padding: 5px 12px; background: var(--cyan); border-radius: 20px; font-size: 10px; color: #000; font-weight: bold; position: absolute; top: -35px; left: 20px; }
+        #api-reminder { 
+            background: rgba(139, 92, 246, 0.1); border: 1.5px dashed var(--p); border-radius: 20px; 
+            padding: 30px; text-align: center; margin-bottom: 20px; 
+        }
     </style>
 </head>
 <body>
     <div class="flux"></div><div class="grain"></div>
     <div id="notify"><span id="not-icon">⚠️</span><span id="not-msg">System</span></div>
-    
-    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
-    <aside id="sidebar">
-        <div class="new-chat" onclick="createNewChat()"><span>+</span> New Conversation</div>
-        <p style="font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Recent</p>
-        <div class="history-list" id="historyList"></div>
-        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--b);">
-            <div class="convo-item" onclick="clearAllData()">🗑️ Clear All History</div>
+    <div class="over" id="over" onclick="menu()"></div>
+
+    <aside id="side">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:900; color:var(--p); font-size:1.4rem;">ZALEGAI</span>
+            <button onclick="menu()" style="background:none; border:none; color:#555; font-size:28px;">&times;</button>
         </div>
+        <button class="convo-item" style="margin-top:20px; text-align:center; border:1px solid var(--p);" onclick="newChat()">+ New Conversation</button>
+        
+        <p class="label">Conversations</p>
+        <div class="convo-list" id="convoList"></div>
+
+        <p class="label">Neural Engine</p>
+        <select id="engine" style="width:100%; background:#151525; color:#fff; border:1px solid var(--b); padding:12px; border-radius:12px;">
+            <option value="fast">⚡ Fast (Speed)</option>
+            <option value="research">🔍 Research (Logic)</option>
+            <option value="nerd">🤓 Nerd (Detail)</option>
+        </select>
+
+        <p class="label">Language</p>
+        <select id="lang" onchange="updateUI()" style="width:100%; background:#151525; color:#fff; border:1px solid var(--b); padding:12px; border-radius:12px;">
+            <option value="en">English</option>
+            <option value="vi">Tiếng Việt</option>
+        </select>
+        
+        <button class="convo-item" style="margin-top:auto; color:var(--err);" onclick="clearAll()">🗑️ Wipe Memory</button>
     </aside>
 
     <div class="app">
         <header>
-            <button class="btn" onclick="toggleSidebar()">☰</button>
-            <div style="font-weight: 900; color: var(--p); font-size: 18px;">ZALEGAI ELITE</div>
-            <button class="btn" onclick="openSettings()">⚙️</button>
+            <button class="btn" onclick="menu()">☰</button>
+            <div style="font-weight:900; letter-spacing:1px; color:var(--p);">AETHER V8.0</div>
+            <button class="btn" onclick="setKey()">⚙️</button>
         </header>
 
-        <div id="chat"></div>
+        <div id="chat">
+            <div id="api-reminder" style="display:none;">
+                <p style="color:var(--p); font-weight:800; margin-bottom:15px;">Neural Link Offline</p>
+                <button onclick="setKey()" style="background:var(--p); color:white; border:none; padding:12px 25px; border-radius:30px; font-weight:800; cursor:pointer;">Enter API Key</button>
+            </div>
+        </div>
 
         <div class="deck">
-            <div class="box" style="position: relative;">
-                <div id="file-indicator">File Attached</div>
-                <button class="btn" onclick="document.getElementById('fileInput').click()">📎</button>
-                <input type="file" id="fileInput" hidden onchange="handleFile(event)">
-                <input type="text" id="userInput" placeholder="Ask anything...">
-                <button class="btn" id="voiceToggle" onclick="toggleVoice()">🔊</button>
-                <button class="btn send-btn" onclick="handleSend()">↑</button>
+            <div class="box">
+                <button class="btn" onclick="document.getElementById('fileIn').click()">📎</button>
+                <input type="file" id="fileIn" hidden onchange="pop('File Attached', '📎')">
+                <input type="text" id="in" placeholder="Ask or type 'draw...' ">
+                <button class="btn" onclick="toggleVoice()">🔊</button>
+                <button class="btn send" onclick="ask()">↑</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- GLOBAL STATE ---
-        let conversations = JSON.parse(localStorage.getItem('zalegai_v7_history')) || [];
-        let currentChatId = null;
-        let attachedFile = null;
-        let voiceEnabled = true;
+        let convos = JSON.parse(localStorage.getItem('zal_v8_c')) || [];
+        let curId = null, vOn = true;
 
         window.onload = () => {
-            initHistory();
-            if(conversations.length === 0) createNewChat();
-            else loadChat(conversations[0].id);
+            const k = localStorage.getItem('zal_key');
+            document.getElementById('api-reminder').style.display = k ? 'none' : 'block';
+            if(!convos.length) newChat(); else loadChat(convos[0].id);
         };
 
-        // --- SIDEBAR & CONVERSATIONS ---
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const ov = document.getElementById('overlay');
-            sb.classList.toggle('open');
-            ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+        function menu() {
+            const open = document.getElementById('side').style.left === "0px";
+            gsap.to("#side", { left: open ? -320 : 0, duration: 0.5, ease: "expo.out" });
+            document.getElementById('over').style.display = open ? "none" : "block";
         }
 
-        function initHistory() {
-            const list = document.getElementById('historyList');
-            list.innerHTML = "";
-            conversations.slice().reverse().forEach(c => {
-                const item = document.createElement('div');
-                item.className = `convo-item ${c.id === currentChatId ? 'active' : ''}`;
-                item.innerText = c.title || "New Conversation";
-                item.onclick = () => loadChat(c.id);
-                list.appendChild(item);
-            });
-        }
-
-        function createNewChat() {
-            currentChatId = Date.now();
-            conversations.push({ id: currentChatId, title: "New Chat", messages: [] });
-            saveHistory();
-            loadChat(currentChatId);
-            if(document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
-        }
-
-        function loadChat(id) {
-            currentChatId = id;
-            const chat = conversations.find(c => c.id === id);
-            document.getElementById('chat').innerHTML = "";
-            chat.messages.forEach(m => render(m.content, m.role, true, m.file));
-            initHistory();
-        }
-
-        function saveHistory() {
-            localStorage.setItem('zalegai_v7_history', JSON.stringify(conversations));
-        }
-
-        // --- FILE HANDLING ---
-        function handleFile(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (f) => {
-                attachedFile = { name: file.name, data: f.target.result, type: file.type };
-                document.getElementById('file-indicator').style.display = 'block';
-                pop(`Attached: ${file.name}`, "📎");
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // --- CORE CHAT LOGIC ---
-        async function handleSend() {
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            const key = localStorage.getItem('z_key');
-
-            if(!key) return pop("Please set API Key in Settings", "🔑");
-            if(!text && !attachedFile) return;
-
-            const chatObj = conversations.find(c => c.id === currentChatId);
-            
-            // Add user message
-            const userMsg = { role: 'user', content: text, file: attachedFile ? attachedFile.name : null };
-            chatObj.messages.push(userMsg);
-            if(chatObj.title === "New Chat") chatObj.title = text.substring(0, 25);
-            
-            render(text, 'user', false, userMsg.file);
-            input.value = "";
-            document.getElementById('file-indicator').style.display = 'none';
-
-            // Placeholder for AI response logic
-            try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: chatObj.messages.map(m => ({ role: m.role, content: m.content }))
-                    })
-                });
-                const d = await res.json();
-                const reply = d.choices[0].message.content;
-                
-                chatObj.messages.push({ role: 'assistant', content: reply });
-                render(reply, 'bot');
-                if(voiceEnabled) speak(reply);
-                saveHistory();
-            } catch(e) { pop("API Error: Check connection", "❌"); }
-            
-            attachedFile = null;
-        }
-
-        function render(t, r, fast, fileName) {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = `row ${r === 'user' ? 'u-row' : ''}`;
-            
-            let fileHtml = fileName ? `<div class="attachment-preview">📄 ${fileName}</div>` : '';
-            div.innerHTML = `<div class="bubble ${r === 'user' ? 'u-b' : 'bot-b'}">
-                ${r === 'bot' || r === 'assistant' ? marked.parse(t) : t}
-                ${fileHtml}
-            </div>`;
-            
-            chat.appendChild(div);
-            gsap.to(div, { opacity: 1, y: 0, duration: fast ? 0 : 0.4 });
-            chat.scrollTo({ top: chat.scrollHeight, behavior: fast ? 'auto' : 'smooth' });
-        }
-
-        // --- UTILS ---
         function pop(msg, icon = '⚠️') {
             const n = document.getElementById('notify');
             document.getElementById('not-icon').innerText = icon;
@@ -267,28 +171,96 @@
             setTimeout(() => gsap.to(n, { y: 0, opacity: 0, duration: 0.5 }), 3000);
         }
 
-        function openSettings() {
-            const k = prompt("Enter Groq API Key:");
-            if(k) { localStorage.setItem('z_key', k); pop("Key Saved", "✅"); }
+        function newChat() {
+            curId = Date.now();
+            convos.unshift({ id: curId, title: "New Chat", msgs: [] });
+            save(); loadChat(curId);
         }
 
-        function toggleVoice() {
-            voiceEnabled = !voiceEnabled;
-            document.getElementById('voiceToggle').innerText = voiceEnabled ? "🔊" : "🔇";
-            pop(voiceEnabled ? "Voice On" : "Voice Off");
+        function loadChat(id) {
+            curId = id;
+            const chat = convos.find(c => c.id === id);
+            document.getElementById('chat').innerHTML = "";
+            chat.msgs.forEach(m => drawMsg(m.content, m.role, true, m.isImg));
+            updateSidebar();
         }
 
-        function speak(text) {
+        async function ask() {
+            const k = localStorage.getItem('zal_key'), i = document.getElementById('in'), txt = i.value.trim();
+            if(!k || !txt) return !k ? setKey() : pop("Type something");
+
+            const chat = convos.find(c => c.id === curId);
+            if(chat.title === "New Chat") chat.title = txt.substring(0, 20);
+            
+            // Image Generation Check
+            if(txt.toLowerCase().startsWith('draw') || txt.toLowerCase().startsWith('vẽ')) {
+                generateImage(txt); i.value = ""; return;
+            }
+
+            drawMsg(txt, 'user'); i.value = "";
+            chat.msgs.push({role: 'user', content: txt});
+
+            const eng = document.getElementById('engine').value;
+            const sys = `Mode: ${eng}. Language: ${document.getElementById('lang').value}. Formatting: Markdown.`;
+
+            try {
+                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST", headers: {"Authorization":`Bearer ${k}`,"Content-Type":"application/json"},
+                    body: JSON.stringify({model:"llama-3.3-70b-versatile", messages:[{role:"system",content:sys}, ...chat.msgs.slice(-10)]})
+                });
+                const d = await r.json();
+                const reply = d.choices[0].message.content;
+                drawMsg(reply, 'bot');
+                chat.msgs.push({role: 'assistant', content: reply});
+                if(vOn) speak(reply);
+                save(); updateSidebar();
+            } catch(e) { pop("Link Error"); }
+        }
+
+        function generateImage(prompt) {
+            drawMsg(`Generating image: "${prompt}"...`, 'bot');
+            // Using a high-quality free generation proxy (Pollinations)
+            const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true`;
+            setTimeout(() => {
+                drawMsg(imgUrl, 'bot', false, true);
+                convos.find(c => c.id === curId).msgs.push({role:'assistant', content: imgUrl, isImg: true});
+                save();
+            }, 2000);
+        }
+
+        function drawMsg(t, r, fast, isImg) {
+            const c = document.getElementById('chat'), div = document.createElement('div');
+            div.className = `row ${r==='user'?'u-row':''}`;
+            let content = isImg ? `<img src="${t}" class="gen-img">` : (r==='bot'?marked.parse(t):t);
+            div.innerHTML = `<div class="bubble ${r==='user'?'u-b':'bot-b'}">${content}</div>`;
+            c.appendChild(div);
+            gsap.to(div, { opacity:1, y:0, duration:fast?0:0.4 });
+            c.scrollTo({top: c.scrollHeight, behavior: fast ? 'auto' : 'smooth'});
+        }
+
+        function speak(t) {
             window.speechSynthesis.cancel();
-            const msg = new SpeechSynthesisUtterance(text.replace(/[#*`]/g, ''));
-            // Detect if contains Vietnamese characters (simplified check)
-            msg.lang = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text) ? "vi-VN" : "en-US";
-            window.speechSynthesis.speak(msg);
+            const m = new SpeechSynthesisUtterance(t.replace(/[#*`]/g, ''));
+            m.lang = document.getElementById('lang').value === 'vi' ? 'vi-VN' : 'en-US';
+            window.speechSynthesis.speak(m);
         }
 
-        function clearAllData() {
-            if(confirm("Purge all conversations?")) { localStorage.clear(); location.reload(); }
+        function updateSidebar() {
+            const l = document.getElementById('convoList'); l.innerHTML = "";
+            convos.forEach(c => {
+                const item = document.createElement('div');
+                item.className = `convo-item ${c.id === curId ? 'active' : ''}`;
+                item.innerText = c.title;
+                item.onclick = () => { loadChat(c.id); menu(); };
+                l.appendChild(item);
+            });
         }
+
+        function setKey() { const k = prompt("API Key:"); if(k) { localStorage.setItem('zal_key', k); location.reload(); } }
+        function save() { localStorage.setItem('zal_v8_c', JSON.stringify(convos)); }
+        function toggleVoice() { vOn = !vOn; pop(vOn ? "Voice On" : "Voice Silenced"); }
+        function clearAll() { if(confirm("Purge all?")) { localStorage.clear(); location.reload(); } }
+        document.getElementById('in').addEventListener('keypress', (e) => e.key==='Enter' && ask());
     </script>
 </body>
 </html>
