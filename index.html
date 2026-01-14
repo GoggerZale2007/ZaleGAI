@@ -13,7 +13,6 @@
             --err: #ff4a4a; --safe: #10a37f;
         }
 
-        /* --- SYSTEM ARCHITECTURE --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
@@ -62,7 +61,6 @@
             padding: 14px; border-radius: 12px; background: var(--g); border: 1px solid transparent; 
             font-size: 14px; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .convo-item:hover { background: var(--b); }
         .convo-item.active { border-color: var(--p); background: var(--p-dim); color: #fff; }
 
         /* --- CHAT AREA --- */
@@ -80,26 +78,29 @@
         .bot-b { background: var(--g); border-left: 4px solid var(--p); border-top-left-radius: 4px; }
         .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; border: none; border-bottom-right-radius: 4px; box-shadow: 0 10px 25px -10px var(--p); }
 
-        /* --- INPUTS & BUTTONS --- */
-        .deck { padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+        /* --- REFINED SQUISH-PROOF INPUT --- */
+        .deck { padding: 15px 20px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); width: 100%; }
         .box { 
-            max-width: 850px; margin: 0 auto; background: rgba(15, 15, 30, 0.8); border-radius: 40px; 
-            padding: 8px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
+            max-width: 850px; margin: 0 auto; background: rgba(15, 15, 30, 0.85); border-radius: 35px; 
+            padding: 6px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--b);
+            width: 100%; box-sizing: border-box;
         }
-        input, select { background: transparent; border: none; color: #fff; font-size: 15px; }
-        input[type="text"] { flex: 1; padding: 10px; }
+        input[type="text"] { 
+            flex: 1; min-width: 0; background: transparent; border: none; color: #fff; 
+            font-size: 16px; padding: 10px 15px;
+        }
         
         .btn { 
-            width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; 
+            width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
-            background: var(--g); color: #fff; transition: 0.3s; flex-shrink: 0;
+            background: var(--g); color: #fff; transition: 0.3s; flex-shrink: 0; 
         }
         .btn:active { transform: scale(0.9); }
         .send { background: var(--p); }
 
-        /* --- SETTINGS SECTIONS --- */
-        .section-card { background: var(--g); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--b); }
-        .img-preview { width: 100%; border-radius: 15px; margin-top: 10px; display: block; border: 1px solid var(--b); }
+        /* --- SETTINGS --- */
+        .section-card { background: var(--g); padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid var(--b); }
+        .img-preview { width: 100%; border-radius: 15px; margin-top: 10px; border: 1px solid var(--b); }
     </style>
 </head>
 <body>
@@ -110,33 +111,28 @@
     <div class="modal" id="setModal">
         <div class="m-content">
             <h2 style="margin:0 0 20px; color:var(--p); font-weight:900;">Settings</h2>
-            
             <div class="section-card">
-                <p class="label" style="margin-top:0;">1. Neural Link (API)</p>
-                <input type="password" id="apiKeyIn" placeholder="Enter API Key" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white;">
+                <p class="label" style="margin-top:0;">1. API Key</p>
+                <input type="password" id="apiKeyIn" placeholder="Enter Groq Key" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white;">
             </div>
-
             <div class="section-card">
-                <p class="label" style="margin-top:0;">2. Bot Persona & Logic</p>
-                <select id="botType" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white; appearance:none;">
-                    <option value="fast">⚡ Fast (Neural 3.3)</option>
-                    <option value="research">🔍 Research (DeepThink)</option>
-                    <option value="nerd">🤓 Technical Nerd</option>
+                <p class="label" style="margin-top:0;">2. Configuration</p>
+                <select id="botType" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white; margin-bottom:10px;">
+                    <option value="fast">⚡ Neural Fast</option>
+                    <option value="research">🔍 Research Mode</option>
+                    <option value="nerd">🤓 Nerd Mode</option>
                 </select>
-                <p class="label">Language Flux</p>
-                <select id="langIn" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white; appearance:none;">
+                <select id="langIn" style="width:100%; background:#050510; border:1px solid var(--b); padding:12px; border-radius:10px; color:white;">
                     <option value="en">English</option>
                     <option value="vi">Tiếng Việt</option>
                 </select>
             </div>
-
             <div class="section-card">
-                <p class="label" style="margin-top:0;">3. Data Control</p>
-                <button onclick="wipeStorage()" style="width:100%; background:transparent; border:1px solid var(--err); color:var(--err); padding:10px; border-radius:10px; cursor:pointer;">Clear All History</button>
+                <p class="label" style="margin-top:0;">3. Storage</p>
+                <button onclick="wipeData()" style="width:100%; background:transparent; border:1px solid var(--err); color:var(--err); padding:10px; border-radius:10px; cursor:pointer;">Clear All History</button>
             </div>
-
-            <button onclick="saveSettings()" style="width:100%; background:var(--p); color:white; border:none; padding:15px; border-radius:15px; font-weight:900; cursor:pointer;">Update Neural Node</button>
-            <button onclick="closeModal()" style="width:100%; background:transparent; color:#555; border:none; margin-top:10px; cursor:pointer;">Back</button>
+            <button onclick="saveSettings()" style="width:100%; background:var(--p); color:white; border:none; padding:15px; border-radius:15px; font-weight:900; cursor:pointer;">Save</button>
+            <button onclick="closeModal()" style="width:100%; background:transparent; color:#555; border:none; margin-top:10px; cursor:pointer;">Cancel</button>
         </div>
     </div>
 
@@ -146,7 +142,7 @@
             <button onclick="toggleMenu()" style="background:none; border:none; color:#555; font-size:30px;">&times;</button>
         </div>
         <button class="convo-item" style="margin-top:25px; border:1px solid var(--p); text-align:center;" onclick="newConvo()">+ New Conversation</button>
-        <p class="label">Chat History</p>
+        <p class="label">Conversations</p>
         <div class="convo-list" id="convoList"></div>
     </aside>
 
@@ -161,8 +157,8 @@
 
         <div class="deck">
             <div class="box">
-                <button class="btn" onclick="pop('Attachment node ready','📎')">📎</button>
-                <input type="text" id="userInput" placeholder="Ask or type 'draw'...">
+                <button class="btn" onclick="pop('Attachment logic active','📎')">📎</button>
+                <input type="text" id="userInput" placeholder="Ask anything...">
                 <button class="btn" id="voiceBtn" onclick="toggleVoice()">🔊</button>
                 <button class="btn send" onclick="handleSend()">↑</button>
             </div>
@@ -170,12 +166,11 @@
     </div>
 
     <script>
-        let conversations = JSON.parse(localStorage.getItem('z_v7_convos')) || [];
+        let conversations = JSON.parse(localStorage.getItem('z_v7_data')) || [];
         let curId = null, voiceOn = true;
 
         window.onload = () => {
-            const k = localStorage.getItem('z_key');
-            if(!k) openSettings();
+            if(!localStorage.getItem('z_key')) openSettings();
             if(!conversations.length) newConvo(); else loadChat(conversations[0].id);
         };
 
@@ -205,8 +200,7 @@
             localStorage.setItem('z_key', document.getElementById('apiKeyIn').value);
             localStorage.setItem('z_type', document.getElementById('botType').value);
             localStorage.setItem('z_lang', document.getElementById('langIn').value);
-            pop("Settings applied", "✅");
-            closeModal();
+            pop("Config Updated", "✅"); closeModal();
             setTimeout(() => location.reload(), 800);
         }
 
@@ -214,7 +208,7 @@
             curId = Date.now();
             conversations.unshift({ id: curId, title: "New Chat", msgs: [] });
             saveData(); loadChat(curId);
-            if(window.innerWidth < 800) toggleMenu();
+            if(window.innerWidth < 800 && document.getElementById('side').style.left === "0px") toggleMenu();
         }
 
         function loadChat(id) {
@@ -228,42 +222,40 @@
         async function handleSend() {
             const input = document.getElementById('userInput'), text = input.value.trim();
             const key = localStorage.getItem('z_key');
-            if(!key || !text) return !key ? openSettings() : pop("Enter a message");
+            if(!key || !text) return !key ? openSettings() : pop("Enter text");
 
             const chat = conversations.find(c => c.id === curId);
             if(chat.title === "New Chat") chat.title = text.substring(0, 22);
 
             if(text.toLowerCase().startsWith('draw') || text.toLowerCase().startsWith('vẽ')) {
-                render(`Generating art: ${text}...`, 'bot');
+                render(`Creating art: ${text}...`, 'bot');
                 const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true`;
                 setTimeout(() => {
                     render(imgUrl, 'bot', false, true);
-                    chat.msgs.push({role: 'assistant', content: imgUrl, isImg: true});
+                    chat.msgs.push({role:'assistant', content: imgUrl, isImg: true});
                     saveData();
                 }, 2000);
                 input.value = ""; return;
             }
 
-            render(text, 'user');
-            input.value = "";
+            render(text, 'user'); input.value = "";
             chat.msgs.push({role: 'user', content: text});
 
             try {
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+                    method: "POST", headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
-                        messages: [{role: "system", content: `Engine: ${localStorage.getItem('z_type')}. Language: ${localStorage.getItem('z_lang')}`}, ...chat.msgs.slice(-10)]
+                        messages: [{role: "system", content: `Type: ${localStorage.getItem('z_type')}. Lang: ${localStorage.getItem('z_lang')}`}, ...chat.msgs.slice(-10)]
                     })
                 });
-                const data = await res.json();
-                const reply = data.choices[0].message.content;
+                const d = await res.json();
+                const reply = d.choices[0].message.content;
                 render(reply, 'bot');
                 chat.msgs.push({role: 'assistant', content: reply});
                 if(voiceOn) speak(reply);
                 saveData(); updateSidebar();
-            } catch(e) { pop("Link Interrupted"); }
+            } catch(e) { pop("Link Failure"); }
         }
 
         function render(t, r, fast, isImg) {
@@ -294,9 +286,9 @@
             });
         }
 
-        function toggleVoice() { voiceOn = !voiceOn; pop(voiceOn ? "Voice Online" : "Voice Offline", "🔊"); }
-        function saveData() { localStorage.setItem('z_v7_convos', JSON.stringify(conversations)); }
-        function wipeStorage() { pop("Purging data...", "🗑️"); localStorage.clear(); setTimeout(() => location.reload(), 1000); }
+        function toggleVoice() { voiceOn = !voiceOn; pop(voiceOn ? "Voice Active" : "Voice Silent", "🔊"); }
+        function saveData() { localStorage.setItem('z_v7_data', JSON.stringify(conversations)); }
+        function wipeData() { if(confirm("Clear all?")) { localStorage.clear(); location.reload(); } }
         document.getElementById('userInput').addEventListener('keypress', (e) => e.key === 'Enter' && handleSend());
     </script>
 </body>
