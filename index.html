@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZaleGAI Elite V6.0</title>
+    <title>ZaleGAI Elite V7.0</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
@@ -13,28 +13,53 @@
             --b: rgba(255,255,255,0.08); --err: #ff4a4a; --cyan: #06b6d4;
         }
 
+        /* --- CORE ARCHITECTURE --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
             background: var(--bg); color: var(--t); font-family: 'Inter', system-ui, sans-serif;
-            position: fixed; touch-action: manipulation;
         }
 
-        /* --- PURPLE & BLUE ANIMATED FLUX --- */
+        /* --- ANIMATED FLUX BACKGROUND --- */
         .flux {
             position: fixed; inset: 0; z-index: -2;
-            background: radial-gradient(circle at 20% 30%, #3b0764 0%, transparent 40%),
-                        radial-gradient(circle at 80% 70%, #1e1b4b 0%, transparent 40%),
-                        radial-gradient(circle at 50% 50%, #020617 0%, #000 100%);
-            animation: fluxMotion 15s infinite alternate ease-in-out;
+            background: linear-gradient(125deg, #3b0764, #1e1b4b, #020617, #581c87);
+            background-size: 400% 400%;
+            animation: fluxGradient 15s ease infinite;
         }
-        @keyframes fluxMotion {
-            0% { transform: scale(1); filter: hue-rotate(0deg); }
-            100% { transform: scale(1.2); filter: hue-rotate(45deg); }
+        @keyframes fluxGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.1"/></svg>'); opacity: 0.15; pointer-events: none; }
+        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.1"/></svg>'); pointer-events: none; }
 
-        /* --- INTERNAL POPUP SYSTEM --- */
+        /* --- CHATGPT STYLE SIDEBAR --- */
+        #sidebar {
+            position: fixed; left: -300px; top: 0; bottom: 0; width: 280px;
+            background: rgba(13, 13, 26, 0.95); backdrop-filter: blur(20px);
+            border-right: 1px solid var(--b); z-index: 2000; padding: 20px;
+            display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #sidebar.open { transform: translateX(300px); }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1999; display: none; }
+
+        .new-chat {
+            border: 1px solid var(--b); border-radius: 10px; padding: 12px;
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            transition: 0.3s; font-size: 14px; margin-bottom: 20px;
+        }
+        .new-chat:hover { background: var(--g); }
+        
+        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .convo-item {
+            padding: 10px; border-radius: 8px; font-size: 13px; cursor: pointer;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            color: #aaa; transition: 0.2s;
+        }
+        .convo-item:hover, .convo-item.active { background: var(--p-dim); color: #fff; }
+
+        /* --- INTERNAL UI ELEMENTS --- */
         #notify {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: var(--s); border: 1px solid var(--b); border-top: 3px solid var(--p);
@@ -42,197 +67,227 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.5); pointer-events: none; opacity: 0;
         }
 
-        /* --- MODAL SYSTEM --- */
-        .modal { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 2000; 
-            display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px);
-        }
-        .m-content { 
-            width: 92%; max-width: 420px; background: #0a0a14; border: 1px solid var(--b);
-            border-radius: 30px; padding: 30px; position: relative;
-            box-shadow: 0 0 50px rgba(139, 92, 246, 0.2);
-        }
-
-        /* --- CHAT ENGINE --- */
-        .app { display: flex; flex-direction: column; height: 100dvh; width: 100vw; }
+        .app { display: flex; flex-direction: column; height: 100dvh; width: 100vw; position: relative; }
         header { 
             padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(3,0,10,0.7); backdrop-filter: blur(20px); border-bottom: 1px solid var(--b);
-            padding-top: env(safe-area-inset-top);
+            background: rgba(3,0,10,0.4); backdrop-filter: blur(15px); border-bottom: 1px solid var(--b);
         }
 
-        #chat { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 20px; max-width: 850px; margin: 0 auto; width: 100%; }
-        .row { display: flex; width: 100%; gap: 14px; opacity: 0; transform: translateY(20px); }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        
+        /* --- MESSAGE BUBBLES --- */
+        .row { display: flex; width: 100%; gap: 12px; opacity: 0; transform: translateY(15px); }
         .u-row { justify-content: flex-end; }
-        .bubble { max-width: 85%; padding: 18px 24px; border-radius: 22px; font-size: 15px; border: 1px solid var(--b); line-height: 1.6; }
-        .bot-b { background: var(--g); border-left: 4px solid var(--p); border-top-left-radius: 4px; }
-        .u-b { background: linear-gradient(135deg, var(--p), #6366f1); color: #fff; border: none; border-bottom-right-radius: 4px; box-shadow: 0 10px 25px -10px var(--p); }
+        .bubble { max-width: 85%; padding: 15px 20px; border-radius: 18px; font-size: 15px; border: 1px solid var(--b); line-height: 1.5; }
+        .bot-b { background: rgba(255,255,255,0.03); border-left: 3px solid var(--p); }
+        .u-b { background: var(--p); color: #fff; border: none; box-shadow: 0 8px 20px -8px var(--p); }
+        
+        .attachment-preview { font-size: 11px; margin-top: 8px; color: var(--cyan); display: flex; align-items: center; gap: 5px; }
 
-        /* --- SETTINGS INPUTS --- */
-        .label { font-size: 10px; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 2px; margin: 15px 0 8px; }
-        select, input[type="text"], input[type="password"] { 
-            width: 100%; background: #121225; color: #fff; border: 1px solid var(--b); 
-            padding: 14px; border-radius: 12px; margin-bottom: 5px; font-size: 14px;
-        }
-
-        .deck { padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+        /* --- INPUT SYSTEM --- */
+        .deck { padding: 20px; background: linear-gradient(0deg, var(--bg) 30%, transparent); }
         .box { 
-            max-width: 850px; margin: 0 auto; background: #0d0d1a; border-radius: 40px; 
-            padding: 8px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
+            max-width: 800px; margin: 0 auto; background: rgba(20, 20, 40, 0.8); border-radius: 25px; 
+            padding: 10px 15px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
         }
-        .btn { width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--g); color: #fff; transition: 0.3s; flex-shrink: 0; }
-        .send { background: var(--p); }
-        #api-reminder { background: var(--p-dim); border: 1.5px dashed var(--p); border-radius: 24px; padding: 40px 20px; text-align: center; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; font-size: 16px; }
+        
+        .btn { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: transparent; color: #aaa; transition: 0.2s; }
+        .btn:hover { color: var(--p); background: var(--g); }
+        .send-btn { background: var(--p); color: #fff; }
+
+        #file-indicator { display: none; padding: 5px 12px; background: var(--cyan); border-radius: 20px; font-size: 10px; color: #000; font-weight: bold; position: absolute; top: -35px; left: 20px; }
     </style>
 </head>
 <body>
     <div class="flux"></div><div class="grain"></div>
+    <div id="notify"><span id="not-icon">⚠️</span><span id="not-msg">System</span></div>
     
-    <div id="notify">
-        <span id="not-icon">⚠️</span>
-        <span id="not-msg">System Message</span>
-    </div>
-
-    <div class="modal" id="setModal">
-        <div class="m-content">
-            <h2 style="margin:0 0 20px; color:var(--p); display:flex; align-items:center; gap:10px;">⚙️ Bot Setup</h2>
-            
-            <p class="label">API Key</p>
-            <input type="password" id="apiKeyInput" placeholder="Enter your key here...">
-
-            <p class="label">Bot Persona</p>
-            <select id="pSelect">
-                <option value="Helpful Assistant">Friendly Assistant</option>
-                <option value="Cyber Hacker">Cyber Shadow</option>
-                <option value="Professional Expert">System Architect</option>
-            </select>
-
-            <p class="label">Language & Voice</p>
-            <select id="langSelect" onchange="updateUI()">
-                <option value="English">English (US)</option>
-                <option value="Vietnamese">Tiếng Việt (VN)</option>
-            </select>
-
-            <p class="label">Voice Speed</p>
-            <select id="vSpeed">
-                <option value="0.8">Calm</option>
-                <option value="1.0" selected>Normal</option>
-                <option value="1.2">Fast</option>
-            </select>
-
-            <button onclick="saveAll()" style="width:100%; margin-top:20px; background:var(--p); color:white; border:none; padding:15px; border-radius:15px; font-weight:800; cursor:pointer;">Update Neural Link</button>
-            <button onclick="toggleModal()" style="width:100%; margin-top:10px; background:transparent; color:#555; border:none; cursor:pointer; font-size:12px;">Close Panel</button>
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <aside id="sidebar">
+        <div class="new-chat" onclick="createNewChat()"><span>+</span> New Conversation</div>
+        <p style="font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Recent</p>
+        <div class="history-list" id="historyList"></div>
+        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--b);">
+            <div class="convo-item" onclick="clearAllData()">🗑️ Clear All History</div>
         </div>
-    </div>
+    </aside>
 
     <div class="app">
         <header>
-            <button class="btn" onclick="pop('Functionality coming soon', 'ℹ️')">☰</button>
-            <div style="display:flex; align-items:center; font-weight:900; letter-spacing:1px; color:var(--p);">ZALEGAI ELITE</div>
-            <button class="btn" onclick="toggleModal()">⚙️</button>
+            <button class="btn" onclick="toggleSidebar()">☰</button>
+            <div style="font-weight: 900; color: var(--p); font-size: 18px;">ZALEGAI ELITE</div>
+            <button class="btn" onclick="openSettings()">⚙️</button>
         </header>
 
-        <div id="chat">
-            <div id="api-reminder">
-                <div style="font-size:32px; margin-bottom:15px;">🟣</div>
-                <p id="remindTitle" style="color:var(--p); font-weight:800; margin:0 0 10px 0;">Aether Node Offline</p>
-                <p id="remindText" style="font-size:13px; opacity:0.6; margin-bottom:25px;">Provide a secure API key to start speaking.</p>
-                <button onclick="toggleModal()" style="background:var(--p); color:white; border:none; padding:15px 35px; border-radius:40px; font-weight:900; cursor:pointer;">Open Credentials</button>
-            </div>
-        </div>
+        <div id="chat"></div>
 
         <div class="deck">
-            <div class="box">
-                <button class="btn" onclick="toggleVoiceOutput()">🔊</button>
-                <input type="text" id="userInput" placeholder="Ask anything..." autocomplete="off">
-                <button class="btn send" onclick="handleSend()">↑</button>
+            <div class="box" style="position: relative;">
+                <div id="file-indicator">File Attached</div>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">📎</button>
+                <input type="file" id="fileInput" hidden onchange="handleFile(event)">
+                <input type="text" id="userInput" placeholder="Ask anything...">
+                <button class="btn" id="voiceToggle" onclick="toggleVoice()">🔊</button>
+                <button class="btn send-btn" onclick="handleSend()">↑</button>
             </div>
         </div>
     </div>
 
     <script>
-        let memory = JSON.parse(localStorage.getItem('z_mem')) || [], vOn = true;
-        const trans = {
-            English: { welcome: "Neural Link Active.", prompt: "Ask anything...", voice: "en-US" },
-            Vietnamese: { welcome: "Liên kết thần kinh đã kích hoạt.", prompt: "Hỏi tôi bất cứ điều gì...", voice: "vi-VN" }
-        };
+        // --- GLOBAL STATE ---
+        let conversations = JSON.parse(localStorage.getItem('zalegai_v7_history')) || [];
+        let currentChatId = null;
+        let attachedFile = null;
+        let voiceEnabled = true;
 
         window.onload = () => {
-            const k = localStorage.getItem('z_key');
-            document.getElementById('api-reminder').style.display = k ? 'none' : 'block';
-            document.getElementById('apiKeyInput').value = k || "";
-            updateUI();
-            memory.forEach(m => render(m.content, m.role, true));
+            initHistory();
+            if(conversations.length === 0) createNewChat();
+            else loadChat(conversations[0].id);
         };
 
-        function pop(msg, icon = '⚠️') {
-            const n = document.getElementById('notify');
-            document.getElementById('not-icon').innerText = icon;
-            document.getElementById('not-msg').innerText = msg;
-            gsap.to(n, { y: 0, opacity: 1, duration: 0.5, ease: "back.out" });
-            setTimeout(() => gsap.to(n, { y: -100, opacity: 0, duration: 0.5 }), 3000);
+        // --- SIDEBAR & CONVERSATIONS ---
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('overlay');
+            sb.classList.toggle('open');
+            ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
         }
 
-        function toggleModal() { 
-            const m = document.getElementById('setModal');
-            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        function initHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = "";
+            conversations.slice().reverse().forEach(c => {
+                const item = document.createElement('div');
+                item.className = `convo-item ${c.id === currentChatId ? 'active' : ''}`;
+                item.innerText = c.title || "New Conversation";
+                item.onclick = () => loadChat(c.id);
+                list.appendChild(item);
+            });
         }
 
-        function saveAll() {
-            const k = document.getElementById('apiKeyInput').value.trim();
-            if(!k) return pop("Key cannot be empty");
-            localStorage.setItem('z_key', k);
-            localStorage.setItem('z_lang', document.getElementById('langSelect').value);
-            pop("Settings Updated", "✅");
-            setTimeout(() => location.reload(), 1000);
+        function createNewChat() {
+            currentChatId = Date.now();
+            conversations.push({ id: currentChatId, title: "New Chat", messages: [] });
+            saveHistory();
+            loadChat(currentChatId);
+            if(document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
         }
 
-        function speak(text) {
-            if(!vOn) return;
-            window.speechSynthesis.cancel();
-            const l = document.getElementById('langSelect').value;
-            const msg = new SpeechSynthesisUtterance(text.replace(/[#*`]/g, ''));
-            msg.lang = trans[l].voice;
-            msg.rate = parseFloat(document.getElementById('vSpeed').value);
-            window.speechSynthesis.speak(msg);
+        function loadChat(id) {
+            currentChatId = id;
+            const chat = conversations.find(c => c.id === id);
+            document.getElementById('chat').innerHTML = "";
+            chat.messages.forEach(m => render(m.content, m.role, true, m.file));
+            initHistory();
         }
 
+        function saveHistory() {
+            localStorage.setItem('zalegai_v7_history', JSON.stringify(conversations));
+        }
+
+        // --- FILE HANDLING ---
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (f) => {
+                attachedFile = { name: file.name, data: f.target.result, type: file.type };
+                document.getElementById('file-indicator').style.display = 'block';
+                pop(`Attached: ${file.name}`, "📎");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- CORE CHAT LOGIC ---
         async function handleSend() {
-            const k = localStorage.getItem('z_key'), input = document.getElementById('userInput'), text = input.value.trim();
-            if(!k || !text) return !k ? toggleModal() : pop("Enter a message");
-            render(text, 'user'); input.value = "";
-            memory.push({role: "user", content: text});
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            const key = localStorage.getItem('z_key');
+
+            if(!key) return pop("Please set API Key in Settings", "🔑");
+            if(!text && !attachedFile) return;
+
+            const chatObj = conversations.find(c => c.id === currentChatId);
+            
+            // Add user message
+            const userMsg = { role: 'user', content: text, file: attachedFile ? attachedFile.name : null };
+            chatObj.messages.push(userMsg);
+            if(chatObj.title === "New Chat") chatObj.title = text.substring(0, 25);
+            
+            render(text, 'user', false, userMsg.file);
+            input.value = "";
+            document.getElementById('file-indicator').style.display = 'none';
+
+            // Placeholder for AI response logic
             try {
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", headers: { "Authorization": `Bearer ${k}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{role: "system", content: `You are ${document.getElementById('pSelect').value}.`}, ...memory.slice(-10)]})
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: chatObj.messages.map(m => ({ role: m.role, content: m.content }))
+                    })
                 });
                 const d = await res.json();
-                if(d.error) throw new Error(d.error.message);
-                const r = d.choices[0].message.content;
-                render(r, 'bot'); speak(r);
-                memory.push({role: "assistant", content: r});
-                localStorage.setItem('z_mem', JSON.stringify(memory.slice(-20)));
-            } catch(e) { pop(e.message); }
+                const reply = d.choices[0].message.content;
+                
+                chatObj.messages.push({ role: 'assistant', content: reply });
+                render(reply, 'bot');
+                if(voiceEnabled) speak(reply);
+                saveHistory();
+            } catch(e) { pop("API Error: Check connection", "❌"); }
+            
+            attachedFile = null;
         }
 
-        function render(t, r, fast) {
-            const chat = document.getElementById('chat'), div = document.createElement('div');
+        function render(t, r, fast, fileName) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
             div.className = `row ${r === 'user' ? 'u-row' : ''}`;
-            div.innerHTML = `<div class="bubble ${r === 'user' ? 'u-b' : 'bot-b'}">${r === 'bot' ? marked.parse(t) : t}</div>`;
+            
+            let fileHtml = fileName ? `<div class="attachment-preview">📄 ${fileName}</div>` : '';
+            div.innerHTML = `<div class="bubble ${r === 'user' ? 'u-b' : 'bot-b'}">
+                ${r === 'bot' || r === 'assistant' ? marked.parse(t) : t}
+                ${fileHtml}
+            </div>`;
+            
             chat.appendChild(div);
             gsap.to(div, { opacity: 1, y: 0, duration: fast ? 0 : 0.4 });
             chat.scrollTo({ top: chat.scrollHeight, behavior: fast ? 'auto' : 'smooth' });
         }
 
-        function updateUI() {
-            const l = document.getElementById('langSelect').value || "English";
-            document.getElementById('userInput').placeholder = trans[l].prompt;
+        // --- UTILS ---
+        function pop(msg, icon = '⚠️') {
+            const n = document.getElementById('notify');
+            document.getElementById('not-icon').innerText = icon;
+            document.getElementById('not-msg').innerText = msg;
+            gsap.to(n, { y: 120, opacity: 1, duration: 0.5 });
+            setTimeout(() => gsap.to(n, { y: 0, opacity: 0, duration: 0.5 }), 3000);
         }
 
-        function toggleVoiceOutput() {
-            vOn = !vOn;
-            pop(vOn ? "Voice Enabled" : "Voice Silenced", vOn ? "🔊" : "🔇");
+        function openSettings() {
+            const k = prompt("Enter Groq API Key:");
+            if(k) { localStorage.setItem('z_key', k); pop("Key Saved", "✅"); }
+        }
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            document.getElementById('voiceToggle').innerText = voiceEnabled ? "🔊" : "🔇";
+            pop(voiceEnabled ? "Voice On" : "Voice Off");
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text.replace(/[#*`]/g, ''));
+            // Detect if contains Vietnamese characters (simplified check)
+            msg.lang = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text) ? "vi-VN" : "en-US";
+            window.speechSynthesis.speak(msg);
+        }
+
+        function clearAllData() {
+            if(confirm("Purge all conversations?")) { localStorage.clear(); location.reload(); }
         }
     </script>
 </body>
