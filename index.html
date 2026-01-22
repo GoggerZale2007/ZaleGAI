@@ -122,7 +122,7 @@
                     <span class="label">2. Bot Setup</span>
                     <select id="botType" style="width:100%; background:black; color:white; border:1px solid var(--b); padding:10px; border-radius:8px; margin-bottom:10px;">
                         <option value="fast">⚡ Fast (Llama 3.3)</option>
-                        <option value="research">🔍 Research AI</option>
+                        <option value="vision">👁️ Vision Engine</option>
                         <option value="nerd">🤓 Technical Nerd</option>
                     </select>
                     <select id="langIn" style="width:100%; background:black; color:white; border:1px solid var(--b); padding:10px; border-radius:8px;">
@@ -211,7 +211,7 @@
             const f = input.files[0];
             if(f) {
                 const r = new FileReader();
-                r.onload = (e) => { pendingImg = e.target.result; pop("Image Attached", "📸"); };
+                r.onload = (e) => { pendingImg = e.target.result; pop("Image Ready", "📸"); };
                 r.readAsDataURL(f);
             }
         }
@@ -297,8 +297,7 @@
         }
 
         function toggleVoice() { voice = !voice; pop(voice?"Voice Synced":"Voice Muted", "🔊"); }
-        function clearAll() { if(confirm("Format Memory?")) { localStorage.clear(); location.reload(); } }
-        document.getElementById('userInput').addEventListener('keypress', (e) => e.key === 'Enter' && send());
+        function clearAll() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
