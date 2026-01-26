@@ -10,7 +10,7 @@
         :root { 
             --p: #8b5cf6; --p2: #6366f1; --bg: #03000a; 
             --t: #f1f1f1; --g: rgba(255,255,255,0.05); --b: rgba(255,255,255,0.15);
-            --panel: #0a0a1a; --err: #ff4a4a; --safe: #10a37f;
+            --panel: rgba(10, 10, 26, 0.95); --err: #ff4a4a;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -19,108 +19,120 @@
             background: var(--bg); color: var(--t); font-family: 'Inter', system-ui, sans-serif;
         }
 
-        /* --- STABLE PLASMA BACKGROUND --- */
+        /* --- THE ANIMATED BACKGROUND (RESTORED) --- */
         .flux {
             position: fixed; inset: 0; z-index: -2;
-            background: radial-gradient(circle at 20% 30%, #3b0764 0%, transparent 50%),
-                        radial-gradient(circle at 80% 70%, #1e1b4b 0%, transparent 50%),
-                        radial-gradient(circle at 50% 50%, #020617 0%, #000 100%);
-            animation: flux 15s infinite alternate ease-in-out;
+            background: 
+                radial-gradient(circle at 20% 30%, #3b0764 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, #1e1b4b 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, #020617 0%, #000 100%);
+            background-size: 200% 200%;
+            animation: fluxGradient 12s infinite alternate ease-in-out;
         }
-        @keyframes flux { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(30deg); } }
+        @keyframes fluxGradient {
+            0% { background-position: 0% 0%; filter: hue-rotate(0deg); }
+            100% { background-position: 100% 100%; filter: hue-rotate(40deg); }
+        }
+        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.1"/></svg>'); pointer-events: none; opacity: 0.15; }
 
-        /* --- SYSTEM OVERLAY (SETTINGS) --- */
+        /* --- SETTINGS PANEL (SLIDE ANIMATION) --- */
         #settingsPanel {
             position: fixed; top: 0; right: -100%; width: 100%; height: 100%;
             background: var(--panel); z-index: 5000; padding: 30px;
-            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            backdrop-filter: blur(20px); border-left: 1px solid var(--b);
+            display: flex; flex-direction: column;
         }
-        #settingsPanel.open { right: 0; }
 
         /* --- SIDEBAR --- */
         #side { 
             position: fixed; left: -320px; top: 0; bottom: 0; width: 300px; 
-            background: rgba(5, 5, 15, 0.98); border-right: 1px solid var(--b); z-index: 3000; 
-            display: flex; flex-direction: column; padding: 25px; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            background: var(--panel); backdrop-filter: blur(25px); 
+            border-right: 1px solid var(--b); z-index: 3000; 
+            display: flex; flex-direction: column; padding: 25px;
         }
-        .over { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 2999; backdrop-filter: blur(4px); }
+        .over { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 2999; backdrop-filter: blur(4px); opacity: 0; }
         
         /* --- CHAT ENGINE --- */
-        .app { display: flex; flex-direction: column; height: 100dvh; }
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--b); }
-        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .app { display: flex; flex-direction: column; height: 100dvh; z-index: 1; }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--b); backdrop-filter: blur(10px); }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
         
-        .bubble { max-width: 85%; padding: 15px 20px; border-radius: 20px; font-size: 15px; border: 1px solid var(--b); line-height: 1.5; position: relative; }
+        .bubble { max-width: 85%; padding: 15px 20px; border-radius: 20px; font-size: 15px; border: 1px solid var(--b); line-height: 1.5; opacity: 0; transform: translateY(10px); }
         .bot-b { background: var(--g); border-left: 4px solid var(--p); align-self: flex-start; }
-        .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); align-self: flex-end; color: white; border: none; }
-        .attach-img { max-width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--b); display: block; }
+        .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); align-self: flex-end; color: white; border: none; box-shadow: 0 10px 20px -10px var(--p); }
+        .attach-img { max-width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--b); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 
-        /* --- FIXED SQUISH-PROOF INPUT --- */
+        /* --- INPUT AREA --- */
         .deck { padding: 15px; width: 100%; }
         .box { 
-            max-width: 800px; margin: 0 auto; background: rgba(20, 20, 40, 0.9); border-radius: 35px; 
+            max-width: 850px; margin: 0 auto; background: rgba(20, 20, 40, 0.8); border-radius: 35px; 
             padding: 6px; display: flex; align-items: center; border: 1px solid var(--b);
+            backdrop-filter: blur(10px);
         }
         input[type="text"] { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; min-width: 0; font-size: 16px; }
-        .btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; background: var(--g); color: #fff; cursor: pointer; flex-shrink: 0; transition: 0.2s; }
+        .btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; background: var(--g); color: #fff; cursor: pointer; flex-shrink: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .btn:active { transform: scale(0.85); }
         .send { background: var(--p); }
 
-        /* --- NOTIFICATIONS --- */
+        /* --- UI COMPONENTS --- */
         #notify {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150px);
             background: #1a1a2e; border: 1px solid var(--b); border-top: 3px solid var(--p);
-            padding: 12px 25px; border-radius: 12px; z-index: 6000; transition: 0.4s;
+            padding: 12px 25px; border-radius: 12px; z-index: 6000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        .convo-item { padding: 12px; border-radius: 10px; margin-bottom: 5px; cursor: pointer; background: var(--g); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .convo-item.active { border: 1px solid var(--p); background: rgba(139, 92, 246, 0.1); }
+        .convo-item { padding: 12px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; background: var(--g); border: 1px solid transparent; transition: 0.2s; }
+        .convo-item.active { border-color: var(--p); background: rgba(139, 92, 246, 0.1); }
+        .label { font-size: 10px; color: var(--p); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
-    <div class="flux"></div>
+    <div class="flux"></div><div class="grain"></div>
     <div id="notify"><span id="not-msg"></span></div>
     <div class="over" id="over" onclick="toggleMenu()"></div>
 
     <div id="settingsPanel">
-        <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
-            <h2 style="margin:0; color:var(--p);">Settings</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h2 style="margin:0; color:var(--p); font-weight: 900;">SYSTEM</h2>
             <button class="btn" onclick="toggleSettings()">✕</button>
         </div>
-        <div style="display:flex; flex-direction:column; gap:20px;">
-            <div><label style="font-size:10px; color:var(--p); font-weight:900;">API KEY</label>
-            <input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px; margin-top:5px;"></div>
-            
-            <div><label style="font-size:10px; color:var(--p); font-weight:900;">ENGINE</label>
-            <select id="botType" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px; margin-top:5px;">
-                <option value="fast">⚡ Fast (Llama 3.3)</option>
-                <option value="vision">👁️ Vision (Llama 3.2)</option>
-                <option value="nerd">🤓 Technical</option>
-            </select></div>
-
-            <div><label style="font-size:10px; color:var(--p); font-weight:900;">LANGUAGE</label>
-            <select id="langIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px; margin-top:5px;">
-                <option value="en">English</option>
-                <option value="vi">Tiếng Việt</option>
-            </select></div>
-
-            <button onclick="saveAll()" style="background:var(--p); color:#fff; border:none; padding:18px; border-radius:15px; font-weight:900; margin-top:10px;">SAVE CONFIG</button>
-            <button onclick="localStorage.clear(); location.reload();" style="background:transparent; color:var(--err); border:1px solid var(--err); padding:12px; border-radius:15px; margin-top:auto;">WIPE HISTORY</button>
+        <div style="display:flex; flex-direction:column; gap:20px; flex: 1;">
+            <div class="section">
+                <span class="label">Neural Key</span>
+                <input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
+            </div>
+            <div class="section">
+                <span class="label">Intelligence Mode</span>
+                <select id="botType" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
+                    <option value="fast">⚡ Fast (Llama 3.3)</option>
+                    <option value="vision">👁️ Vision (Llama 3.2)</option>
+                </select>
+            </div>
+            <div class="section">
+                <span class="label">Interface Language</span>
+                <select id="langIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
+                    <option value="en">English (Global)</option>
+                    <option value="vi">Tiếng Việt (Vietnam)</option>
+                </select>
+            </div>
+            <button onclick="saveAll()" style="background:var(--p); color:#fff; border:none; padding:18px; border-radius:15px; font-weight:900; margin-top:10px; cursor:pointer;">SAVE CHANGES</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:transparent; color:var(--err); border:1px solid var(--err); padding:12px; border-radius:15px; margin-top:auto; cursor:pointer;">WIPE ALL HISTORY</button>
         </div>
     </div>
 
     <aside id="side">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:900; color:var(--p); font-size:1.4rem;">ZALEGAI</span>
+            <span style="font-weight:900; color:var(--p); font-size:1.5rem; letter-spacing:-1px;">ZALEGAI</span>
             <button class="btn" onclick="toggleMenu()" style="background:none;">✕</button>
         </div>
-        <button onclick="newConvo()" style="margin-top:20px; width:100%; padding:14px; border-radius:12px; background:var(--p); color:white; border:none; font-weight:bold;">+ New Session</button>
-        <div id="convoList" style="margin-top:20px; flex:1; overflow-y:auto;"></div>
+        <button onclick="newConvo()" style="margin-top:25px; width:100%; padding:14px; border-radius:14px; background:var(--p); color:white; border:none; font-weight:900; cursor:pointer;">+ NEW CHAT</button>
+        <p class="label" style="margin-top:30px;">Recents</p>
+        <div id="convoList" style="flex:1; overflow-y:auto;"></div>
     </aside>
 
     <div class="app">
         <header>
             <button class="btn" onclick="toggleMenu()">☰</button>
-            <div style="font-weight:900; color:var(--p);">ELITE v8.0</div>
+            <div style="font-weight:900; color:var(--p); letter-spacing: 2px; font-size: 14px;">ELITE v8.0</div>
             <button class="btn" onclick="toggleSettings()">⚙️</button>
         </header>
         <div id="chat"></div>
@@ -128,7 +140,7 @@
             <div class="box">
                 <input type="file" id="fileIn" hidden accept="image/*" onchange="previewImg(this)">
                 <button class="btn" onclick="document.getElementById('fileIn').click()">📎</button>
-                <input type="text" id="userInput" placeholder="Message ZaleGAI...">
+                <input type="text" id="userInput" placeholder="Ask anything...">
                 <button class="btn send" onclick="send()">↑</button>
             </div>
         </div>
@@ -146,26 +158,34 @@
         function pop(t) {
             const n = document.getElementById('notify');
             document.getElementById('not-msg').innerText = t;
-            n.style.transform = "translateX(-50%) translateY(140px)";
-            n.style.opacity = "1";
-            setTimeout(() => { n.style.transform = "translateX(-50%) translateY(-150px)"; n.style.opacity = "0"; }, 3000);
+            gsap.to(n, { y: 150, opacity: 1, duration: 0.5, ease: "back.out" });
+            setTimeout(() => gsap.to(n, { y: 0, opacity: 0, duration: 0.5 }), 3000);
         }
 
-        function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('open'); document.getElementById('apiKeyIn').value = localStorage.getItem('z8_key') || ""; }
+        function toggleSettings() {
+            const open = document.getElementById('settingsPanel').style.right === "0px";
+            gsap.to("#settingsPanel", { right: open ? "-100%" : "0px", duration: 0.6, ease: "expo.out" });
+            document.getElementById('apiKeyIn').value = localStorage.getItem('z8_key') || "";
+        }
         
         function toggleMenu() {
-            const s = document.getElementById('side');
-            const open = s.style.left === "0px";
-            s.style.left = open ? "-320px" : "0px";
-            document.getElementById('over').style.display = open ? "none" : "block";
+            const side = document.getElementById('side');
+            const open = side.style.left === "0px";
+            gsap.to(side, { left: open ? "-320px" : "0px", duration: 0.5, ease: "power4.out" });
+            if(!open) {
+                document.getElementById('over').style.display = "block";
+                gsap.to("#over", { opacity: 1, duration: 0.3 });
+            } else {
+                gsap.to("#over", { opacity: 0, duration: 0.3, onComplete: () => document.getElementById('over').style.display = "none" });
+            }
         }
 
         function saveAll() {
             localStorage.setItem('z8_key', document.getElementById('apiKeyIn').value);
             localStorage.setItem('z8_type', document.getElementById('botType').value);
             localStorage.setItem('z8_lang', document.getElementById('langIn').value);
-            pop("Settings Synced");
-            setTimeout(() => location.reload(), 1000);
+            pop("Neural Link Updated");
+            setTimeout(() => location.reload(), 800);
         }
 
         function previewImg(input) {
@@ -197,7 +217,7 @@
             if(!key || (!val && !pendingImg)) return;
 
             const chat = convs.find(x => x.id === curId);
-            if(chat.title === "New Session") chat.title = val.substring(0, 20) || "Visual Analysis";
+            if(chat.title === "New Session") chat.title = val.substring(0, 20) || "Visual Query";
             
             render(val || "Shared Image", 'user', pendingImg);
             const currentImg = pendingImg;
@@ -229,12 +249,12 @@
             div.className = `bubble ${r==='user'?'u-b':'bot-b'}`;
             div.innerHTML = marked.parse(t);
             if(img) {
-                const i = document.createElement('img');
-                i.src = img; i.className = 'attach-img';
+                const i = document.createElement('img'); i.src = img; i.className = 'attach-img';
                 div.appendChild(i);
             }
             c.appendChild(div);
-            c.scrollTo({top: c.scrollHeight, behavior: fast?'auto':'smooth'});
+            gsap.to(div, { opacity: 1, y: 0, duration: fast ? 0 : 0.4 });
+            c.scrollTo({top: c.scrollHeight, behavior: fast ? 'auto' : 'smooth'});
         }
 
         function updateList() {
