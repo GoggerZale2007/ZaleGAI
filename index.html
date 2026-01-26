@@ -9,8 +9,8 @@
     <style>
         :root { 
             --p: #8b5cf6; --p2: #6366f1; --bg: #03000a; 
-            --t: #f1f1f1; --g: rgba(255,255,255,0.05); --b: rgba(255,255,255,0.15);
-            --panel: rgba(10, 10, 26, 0.98); --err: #ff4a4a;
+            --t: #f1f1f1; --g: rgba(255,255,255,0.05); --b: rgba(255,255,255,0.12);
+            --panel: #080814; --err: #ff4a4a;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -19,116 +19,110 @@
             background: var(--bg); color: var(--t); font-family: 'Inter', system-ui, sans-serif;
         }
 
-        /* --- RESTORED ANIMATED FLUX BACKGROUND --- */
-        .flux-container { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
+        /* --- HIGH-MOTION ANIMATED BACKGROUND --- */
+        .flux-wrap { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
         .flux {
             position: absolute; inset: -50%; 
             background: 
-                radial-gradient(circle at 30% 30%, #3b0764 0%, transparent 40%),
-                radial-gradient(circle at 70% 70%, #1e1b4b 0%, transparent 40%),
+                radial-gradient(circle at 30% 30%, #3b0764 0%, transparent 45%),
+                radial-gradient(circle at 70% 70%, #1e1b4b 0%, transparent 45%),
                 radial-gradient(circle at 50% 50%, #020617 0%, #000 100%);
-            filter: blur(40px);
-            animation: rotateFlux 20s linear infinite;
+            animation: rotateFlux 22s linear infinite;
         }
         @keyframes rotateFlux {
-            0% { transform: rotate(0deg) scale(1.2); }
-            50% { transform: rotate(180deg) scale(1.5); }
-            100% { transform: rotate(360deg) scale(1.2); }
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.3); }
+            100% { transform: rotate(360deg) scale(1); }
         }
-        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.15"/></svg>'); pointer-events: none; }
+        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.12"/></svg>'); pointer-events: none; }
 
-        /* --- UI OVERLAYS --- */
+        /* --- OVERLAYS --- */
         #settingsPanel {
             position: fixed; top: 0; right: -100%; width: 100%; height: 100%;
-            background: var(--panel); z-index: 5000; padding: 30px;
-            backdrop-filter: blur(30px); border-left: 1px solid var(--b);
-            display: flex; flex-direction: column;
+            background: var(--panel); z-index: 5000; padding: 40px 30px;
+            border-left: 1px solid var(--b); display: flex; flex-direction: column;
         }
         #side { 
             position: fixed; left: -320px; top: 0; bottom: 0; width: 300px; 
-            background: var(--panel); backdrop-filter: blur(30px); 
-            border-right: 1px solid var(--b); z-index: 3000; 
+            background: var(--panel); border-right: 1px solid var(--b); z-index: 3000; 
             display: flex; flex-direction: column; padding: 25px;
         }
-        #over { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2999; backdrop-filter: blur(5px); opacity: 0; }
+        #over { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2999; opacity: 0; }
         
-        /* --- CHAT ENGINE --- */
+        /* --- CHAT ARCHITECTURE --- */
         .app { display: flex; flex-direction: column; height: 100dvh; position: relative; z-index: 1; }
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--b); backdrop-filter: blur(20px); }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--b); backdrop-filter: blur(15px); }
         #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         
-        /* --- MESSAGE BUBBLES --- */
-        .row { display: flex; width: 100%; opacity: 0; transform: translateY(20px); margin-bottom: 10px; }
+        .row { display: flex; width: 100%; opacity: 0; transform: translateY(15px); }
         .u-row { justify-content: flex-end; }
-        .bubble { max-width: 85%; padding: 16px 20px; border-radius: 22px; font-size: 15px; border: 1px solid var(--b); line-height: 1.6; }
-        .bot-b { background: var(--g); border-left: 4px solid var(--p); border-top-left-radius: 4px; }
-        .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); border: none; border-bottom-right-radius: 4px; box-shadow: 0 10px 25px -10px var(--p); }
-        .attach-img { width: 100%; max-width: 300px; border-radius: 15px; margin-top: 12px; display: block; border: 1px solid var(--b); }
+        .bubble { max-width: 85%; padding: 16px 20px; border-radius: 20px; font-size: 15px; border: 1px solid var(--b); line-height: 1.6; }
+        .bot-b { background: var(--g); border-left: 4px solid var(--p); align-self: flex-start; }
+        .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); align-self: flex-end; color: white; border: none; box-shadow: 0 10px 20px -8px var(--p); }
+        .attach-img { width: 100%; max-width: 320px; border-radius: 12px; margin-top: 12px; display: block; border: 1px solid var(--b); }
 
-        /* --- INPUT DECK --- */
+        /* --- INPUT --- */
         .deck { padding: 15px 20px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
         .box { 
-            max-width: 850px; margin: 0 auto; background: rgba(20, 20, 40, 0.7); border-radius: 40px; 
+            max-width: 800px; margin: 0 auto; background: rgba(15, 15, 25, 0.9); border-radius: 40px; 
             padding: 8px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
-            backdrop-filter: blur(20px);
         }
         input[type="text"] { flex: 1; min-width: 0; background: transparent; border: none; color: #fff; padding: 10px; font-size: 16px; }
-        .btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; background: var(--g); color: #fff; cursor: pointer; flex-shrink: 0; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .btn:active { transform: scale(0.8); }
+        .btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; background: var(--g); color: #fff; cursor: pointer; flex-shrink: 0; }
         .send { background: var(--p); }
 
-        /* --- SIDEBAR CONTENT --- */
-        .convo-item { padding: 14px; border-radius: 15px; margin-bottom: 8px; cursor: pointer; background: var(--g); border: 1px solid transparent; transition: 0.3s; font-size: 14px; }
-        .convo-item.active { border-color: var(--p); background: rgba(139, 92, 246, 0.15); }
-        .label { font-size: 10px; color: var(--p); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 20px 0 10px; display: block; }
+        /* --- ELEMENTS --- */
+        .convo-item { padding: 14px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; background: var(--g); border: 1px solid transparent; transition: 0.2s; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .convo-item.active { border-color: var(--p); background: rgba(139, 92, 246, 0.1); }
+        .label { font-size: 10px; color: var(--p); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; display: block; }
         
         #notify {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150px);
-            background: #121225; border: 1px solid var(--b); border-top: 3px solid var(--p);
-            padding: 15px 30px; border-radius: 15px; z-index: 6000; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            background: #0d0d1a; border: 1px solid var(--b); border-top: 3px solid var(--p);
+            padding: 15px 25px; border-radius: 15px; z-index: 6000; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
         }
     </style>
 </head>
 <body>
-    <div class="flux-container"><div class="flux"></div></div>
+    <div class="flux-wrap"><div class="flux"></div></div>
     <div class="grain"></div>
     <div id="notify"><span id="not-msg"></span></div>
     <div id="over" onclick="toggleMenu()"></div>
 
     <aside id="side">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:900; color:var(--p); font-size:1.6rem;">ZaleGAI</span>
+            <span style="font-weight:900; color:var(--p); font-size:1.6rem;">ZALEGAI</span>
             <button class="btn" onclick="toggleMenu()" style="background:none;">✕</button>
         </div>
         <button onclick="newConvo()" style="margin-top:25px; width:100%; padding:15px; border-radius:15px; background:var(--p); color:white; border:none; font-weight:900; cursor:pointer;">+ NEW CHAT</button>
-        <p class="label">Conversations</p>
+        <p class="label" style="margin-top:30px;">Memory Sessions</p>
         <div id="convoList" style="flex:1; overflow-y:auto;"></div>
     </aside>
 
     <div id="settingsPanel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-            <h2 style="margin:0; color:var(--p); font-weight:900;">SETTINGS</h2>
+            <h2 style="margin:0; color:var(--p); font-weight:900;">Settings</h2>
             <button class="btn" onclick="toggleSettings()">✕</button>
         </div>
-        <div style="display:flex; flex-direction:column; gap:20px; flex:1;">
-            <div><span class="label">API Access Key</span><input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;"></div>
-            <div><span class="label">Bot Personality</span><select id="botType" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
-                <option value="fast">⚡ Neural Fast (Llama 3.3)</option>
-                <option value="vision">👁️ Vision (Llama 3.2)</option>
+        <div style="display:flex; flex-direction:column; gap:25px; flex:1;">
+            <div><span class="label">API Key</span><input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;"></div>
+            <div><span class="label">Primary Engine</span><select id="botType" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
+                <option value="fast">⚡ Fast (Neural 3.3)</option>
+                <option value="vision">👁️ Vision (Vision 3.2)</option>
             </select></div>
-            <div><span class="label">Language Matrix</span><select id="langIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
-                <option value="en">English</option>
-                <option value="vi">Tiếng Việt (Vietnamese)</option>
+            <div><span class="label">Language Flux</span><select id="langIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
+                <option value="en">English (US)</option>
+                <option value="vi">Tiếng Việt (VN)</option>
             </select></div>
-            <button onclick="saveAll()" style="background:var(--p); color:#fff; border:none; padding:18px; border-radius:15px; font-weight:900; margin-top:10px;">SAVE CONFIG</button>
-            <button onclick="localStorage.clear(); location.reload();" style="background:transparent; color:var(--err); border:1px solid var(--err); padding:12px; border-radius:15px; margin-top:auto;">WIPE DATA</button>
+            <button onclick="saveAll()" style="background:var(--p); color:#fff; border:none; padding:18px; border-radius:15px; font-weight:900; margin-top:10px; cursor:pointer;">SAVE CONFIG</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:transparent; color:var(--err); border:1px solid var(--err); padding:12px; border-radius:15px; margin-top:auto; cursor:pointer;">WIPE HISTORY</button>
         </div>
     </div>
 
     <div class="app">
         <header>
             <button class="btn" onclick="toggleMenu()">☰</button>
-            <div style="font-weight:900; color:var(--p); letter-spacing:3px; font-size:14px;">ZaleGAI v8.0</div>
+            <div style="font-weight:900; color:var(--p); letter-spacing:2px; font-size:14px;">ELITE v8.0</div>
             <button class="btn" onclick="toggleSettings()">⚙️</button>
         </header>
 
@@ -138,7 +132,7 @@
             <div class="box">
                 <input type="file" id="fileIn" hidden accept="image/*" onchange="previewImg(this)">
                 <button class="btn" onclick="document.getElementById('fileIn').click()">📎</button>
-                <input type="text" id="userInput" placeholder="Type a message...">
+                <input type="text" id="userInput" placeholder="Message or attach image...">
                 <button class="btn send" onclick="handleSend()">↑</button>
             </div>
         </div>
@@ -163,7 +157,7 @@
         function toggleSettings() {
             const panel = document.getElementById('settingsPanel');
             const isOpen = panel.classList.contains('active');
-            gsap.to(panel, { right: isOpen ? "-100%" : "0px", duration: 0.7, ease: "expo.out" });
+            gsap.to(panel, { right: isOpen ? "-100%" : "0px", duration: 0.6, ease: "expo.out" });
             panel.classList.toggle('active');
             document.getElementById('apiKeyIn').value = localStorage.getItem('z8_key') || "";
         }
@@ -171,7 +165,7 @@
         function toggleMenu() {
             const side = document.getElementById('side'), over = document.getElementById('over');
             const isOpen = side.classList.contains('active');
-            gsap.to(side, { left: isOpen ? "-320px" : "0px", duration: 0.6, ease: "power4.out" });
+            gsap.to(side, { left: isOpen ? "-320px" : "0px", duration: 0.5, ease: "power4.out" });
             if(!isOpen) {
                 over.style.display = "block";
                 gsap.to(over, { opacity: 1, duration: 0.4 });
@@ -185,15 +179,15 @@
             localStorage.setItem('z8_key', document.getElementById('apiKeyIn').value);
             localStorage.setItem('z8_type', document.getElementById('botType').value);
             localStorage.setItem('z8_lang', document.getElementById('langIn').value);
-            pop("Neural Link Verified");
-            setTimeout(() => location.reload(), 1000);
+            pop("Neural Link Active");
+            setTimeout(() => location.reload(), 800);
         }
 
         function previewImg(input) {
             const f = input.files[0];
             if(f) {
                 const r = new FileReader();
-                r.onload = (e) => { pendingImg = e.target.result; pop("Image Attached"); };
+                r.onload = (e) => { pendingImg = e.target.result; pop("Image Ready"); };
                 r.readAsDataURL(f);
             }
         }
@@ -218,10 +212,10 @@
             if(!key || (!val && !pendingImg)) return;
 
             const chat = convs.find(x => x.id === curId);
-            if(chat.title === "New Session") chat.title = val.substring(0, 22) || "Visual Analysis";
+            if(chat.title === "New Session") chat.title = val.substring(0, 24) || "Visual Analysis";
             
             const currentImg = pendingImg;
-            render(val || "Visual Query", 'user', currentImg);
+            render(val || "Attached Image", 'user', currentImg);
             chat.msgs.push({role:'user', txt:val, img:currentImg});
             pendingImg = null; inp.value = "";
 
