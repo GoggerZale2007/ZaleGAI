@@ -10,7 +10,7 @@
         :root { 
             --p: #8b5cf6; --p2: #6366f1; --bg: #03000a; 
             --t: #f1f1f1; --g: rgba(255,255,255,0.05); --b: rgba(255,255,255,0.15);
-            --panel: rgba(10, 10, 26, 0.95); --err: #ff4a4a;
+            --panel: rgba(10, 10, 26, 0.98); --err: #ff4a4a;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -19,129 +19,127 @@
             background: var(--bg); color: var(--t); font-family: 'Inter', system-ui, sans-serif;
         }
 
-        /* --- THE ANIMATED BACKGROUND (RESTORED) --- */
+        /* --- RESTORED ANIMATED FLUX BACKGROUND --- */
+        .flux-container { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
         .flux {
-            position: fixed; inset: 0; z-index: -2;
+            position: absolute; inset: -50%; 
             background: 
-                radial-gradient(circle at 20% 30%, #3b0764 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, #1e1b4b 0%, transparent 50%),
+                radial-gradient(circle at 30% 30%, #3b0764 0%, transparent 40%),
+                radial-gradient(circle at 70% 70%, #1e1b4b 0%, transparent 40%),
                 radial-gradient(circle at 50% 50%, #020617 0%, #000 100%);
-            background-size: 200% 200%;
-            animation: fluxGradient 12s infinite alternate ease-in-out;
+            filter: blur(40px);
+            animation: rotateFlux 20s linear infinite;
         }
-        @keyframes fluxGradient {
-            0% { background-position: 0% 0%; filter: hue-rotate(0deg); }
-            100% { background-position: 100% 100%; filter: hue-rotate(40deg); }
+        @keyframes rotateFlux {
+            0% { transform: rotate(0deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(1.5); }
+            100% { transform: rotate(360deg) scale(1.2); }
         }
-        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.1"/></svg>'); pointer-events: none; opacity: 0.15; }
+        .grain { position: fixed; inset: 0; z-index: -1; background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.15"/></svg>'); pointer-events: none; }
 
-        /* --- SETTINGS PANEL (SLIDE ANIMATION) --- */
+        /* --- UI OVERLAYS --- */
         #settingsPanel {
             position: fixed; top: 0; right: -100%; width: 100%; height: 100%;
             background: var(--panel); z-index: 5000; padding: 30px;
-            backdrop-filter: blur(20px); border-left: 1px solid var(--b);
+            backdrop-filter: blur(30px); border-left: 1px solid var(--b);
             display: flex; flex-direction: column;
         }
-
-        /* --- SIDEBAR --- */
         #side { 
             position: fixed; left: -320px; top: 0; bottom: 0; width: 300px; 
-            background: var(--panel); backdrop-filter: blur(25px); 
+            background: var(--panel); backdrop-filter: blur(30px); 
             border-right: 1px solid var(--b); z-index: 3000; 
             display: flex; flex-direction: column; padding: 25px;
         }
-        .over { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 2999; backdrop-filter: blur(4px); opacity: 0; }
+        #over { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2999; backdrop-filter: blur(5px); opacity: 0; }
         
         /* --- CHAT ENGINE --- */
-        .app { display: flex; flex-direction: column; height: 100dvh; z-index: 1; }
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--b); backdrop-filter: blur(10px); }
-        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+        .app { display: flex; flex-direction: column; height: 100dvh; position: relative; z-index: 1; }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--b); backdrop-filter: blur(20px); }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         
-        .bubble { max-width: 85%; padding: 15px 20px; border-radius: 20px; font-size: 15px; border: 1px solid var(--b); line-height: 1.5; opacity: 0; transform: translateY(10px); }
-        .bot-b { background: var(--g); border-left: 4px solid var(--p); align-self: flex-start; }
-        .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); align-self: flex-end; color: white; border: none; box-shadow: 0 10px 20px -10px var(--p); }
-        .attach-img { max-width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--b); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        /* --- MESSAGE BUBBLES --- */
+        .row { display: flex; width: 100%; opacity: 0; transform: translateY(20px); margin-bottom: 10px; }
+        .u-row { justify-content: flex-end; }
+        .bubble { max-width: 85%; padding: 16px 20px; border-radius: 22px; font-size: 15px; border: 1px solid var(--b); line-height: 1.6; }
+        .bot-b { background: var(--g); border-left: 4px solid var(--p); border-top-left-radius: 4px; }
+        .u-b { background: linear-gradient(135deg, var(--p), var(--p2)); border: none; border-bottom-right-radius: 4px; box-shadow: 0 10px 25px -10px var(--p); }
+        .attach-img { width: 100%; max-width: 300px; border-radius: 15px; margin-top: 12px; display: block; border: 1px solid var(--b); }
 
-        /* --- INPUT AREA --- */
-        .deck { padding: 15px; width: 100%; }
+        /* --- INPUT DECK --- */
+        .deck { padding: 15px 20px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
         .box { 
-            max-width: 850px; margin: 0 auto; background: rgba(20, 20, 40, 0.8); border-radius: 35px; 
-            padding: 6px; display: flex; align-items: center; border: 1px solid var(--b);
-            backdrop-filter: blur(10px);
+            max-width: 850px; margin: 0 auto; background: rgba(20, 20, 40, 0.7); border-radius: 40px; 
+            padding: 8px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--b);
+            backdrop-filter: blur(20px);
         }
-        input[type="text"] { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; min-width: 0; font-size: 16px; }
-        .btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; background: var(--g); color: #fff; cursor: pointer; flex-shrink: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .btn:active { transform: scale(0.85); }
+        input[type="text"] { flex: 1; min-width: 0; background: transparent; border: none; color: #fff; padding: 10px; font-size: 16px; }
+        .btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; background: var(--g); color: #fff; cursor: pointer; flex-shrink: 0; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .btn:active { transform: scale(0.8); }
         .send { background: var(--p); }
 
-        /* --- UI COMPONENTS --- */
+        /* --- SIDEBAR CONTENT --- */
+        .convo-item { padding: 14px; border-radius: 15px; margin-bottom: 8px; cursor: pointer; background: var(--g); border: 1px solid transparent; transition: 0.3s; font-size: 14px; }
+        .convo-item.active { border-color: var(--p); background: rgba(139, 92, 246, 0.15); }
+        .label { font-size: 10px; color: var(--p); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 20px 0 10px; display: block; }
+        
         #notify {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150px);
-            background: #1a1a2e; border: 1px solid var(--b); border-top: 3px solid var(--p);
-            padding: 12px 25px; border-radius: 12px; z-index: 6000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #121225; border: 1px solid var(--b); border-top: 3px solid var(--p);
+            padding: 15px 30px; border-radius: 15px; z-index: 6000; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .convo-item { padding: 12px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; background: var(--g); border: 1px solid transparent; transition: 0.2s; }
-        .convo-item.active { border-color: var(--p); background: rgba(139, 92, 246, 0.1); }
-        .label { font-size: 10px; color: var(--p); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
-    <div class="flux"></div><div class="grain"></div>
+    <div class="flux-container"><div class="flux"></div></div>
+    <div class="grain"></div>
     <div id="notify"><span id="not-msg"></span></div>
-    <div class="over" id="over" onclick="toggleMenu()"></div>
-
-    <div id="settingsPanel">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-            <h2 style="margin:0; color:var(--p); font-weight: 900;">SYSTEM</h2>
-            <button class="btn" onclick="toggleSettings()">✕</button>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:20px; flex: 1;">
-            <div class="section">
-                <span class="label">Neural Key</span>
-                <input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
-            </div>
-            <div class="section">
-                <span class="label">Intelligence Mode</span>
-                <select id="botType" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
-                    <option value="fast">⚡ Fast (Llama 3.3)</option>
-                    <option value="vision">👁️ Vision (Llama 3.2)</option>
-                </select>
-            </div>
-            <div class="section">
-                <span class="label">Interface Language</span>
-                <select id="langIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
-                    <option value="en">English (Global)</option>
-                    <option value="vi">Tiếng Việt (Vietnam)</option>
-                </select>
-            </div>
-            <button onclick="saveAll()" style="background:var(--p); color:#fff; border:none; padding:18px; border-radius:15px; font-weight:900; margin-top:10px; cursor:pointer;">SAVE CHANGES</button>
-            <button onclick="localStorage.clear(); location.reload();" style="background:transparent; color:var(--err); border:1px solid var(--err); padding:12px; border-radius:15px; margin-top:auto; cursor:pointer;">WIPE ALL HISTORY</button>
-        </div>
-    </div>
+    <div id="over" onclick="toggleMenu()"></div>
 
     <aside id="side">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:900; color:var(--p); font-size:1.5rem; letter-spacing:-1px;">ZALEGAI</span>
+            <span style="font-weight:900; color:var(--p); font-size:1.6rem;">ZaleGAI</span>
             <button class="btn" onclick="toggleMenu()" style="background:none;">✕</button>
         </div>
-        <button onclick="newConvo()" style="margin-top:25px; width:100%; padding:14px; border-radius:14px; background:var(--p); color:white; border:none; font-weight:900; cursor:pointer;">+ NEW CHAT</button>
-        <p class="label" style="margin-top:30px;">Recents</p>
+        <button onclick="newConvo()" style="margin-top:25px; width:100%; padding:15px; border-radius:15px; background:var(--p); color:white; border:none; font-weight:900; cursor:pointer;">+ NEW CHAT</button>
+        <p class="label">Conversations</p>
         <div id="convoList" style="flex:1; overflow-y:auto;"></div>
     </aside>
+
+    <div id="settingsPanel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h2 style="margin:0; color:var(--p); font-weight:900;">SETTINGS</h2>
+            <button class="btn" onclick="toggleSettings()">✕</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:20px; flex:1;">
+            <div><span class="label">API Access Key</span><input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;"></div>
+            <div><span class="label">Bot Personality</span><select id="botType" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
+                <option value="fast">⚡ Neural Fast (Llama 3.3)</option>
+                <option value="vision">👁️ Vision (Llama 3.2)</option>
+            </select></div>
+            <div><span class="label">Language Matrix</span><select id="langIn" style="width:100%; background:#000; border:1px solid var(--b); color:#fff; padding:15px; border-radius:12px;">
+                <option value="en">English</option>
+                <option value="vi">Tiếng Việt (Vietnamese)</option>
+            </select></div>
+            <button onclick="saveAll()" style="background:var(--p); color:#fff; border:none; padding:18px; border-radius:15px; font-weight:900; margin-top:10px;">SAVE CONFIG</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:transparent; color:var(--err); border:1px solid var(--err); padding:12px; border-radius:15px; margin-top:auto;">WIPE DATA</button>
+        </div>
+    </div>
 
     <div class="app">
         <header>
             <button class="btn" onclick="toggleMenu()">☰</button>
-            <div style="font-weight:900; color:var(--p); letter-spacing: 2px; font-size: 14px;">ELITE v8.0</div>
+            <div style="font-weight:900; color:var(--p); letter-spacing:3px; font-size:14px;">ZaleGAI v8.0</div>
             <button class="btn" onclick="toggleSettings()">⚙️</button>
         </header>
+
         <div id="chat"></div>
+
         <div class="deck">
             <div class="box">
                 <input type="file" id="fileIn" hidden accept="image/*" onchange="previewImg(this)">
                 <button class="btn" onclick="document.getElementById('fileIn').click()">📎</button>
-                <input type="text" id="userInput" placeholder="Ask anything...">
-                <button class="btn send" onclick="send()">↑</button>
+                <input type="text" id="userInput" placeholder="Type a message...">
+                <button class="btn send" onclick="handleSend()">↑</button>
             </div>
         </div>
     </div>
@@ -158,34 +156,37 @@
         function pop(t) {
             const n = document.getElementById('notify');
             document.getElementById('not-msg').innerText = t;
-            gsap.to(n, { y: 150, opacity: 1, duration: 0.5, ease: "back.out" });
-            setTimeout(() => gsap.to(n, { y: 0, opacity: 0, duration: 0.5 }), 3000);
+            gsap.to(n, { y: 150, opacity: 1, duration: 0.6, ease: "back.out" });
+            setTimeout(() => gsap.to(n, { y: 0, opacity: 0, duration: 0.4 }), 3000);
         }
 
         function toggleSettings() {
-            const open = document.getElementById('settingsPanel').style.right === "0px";
-            gsap.to("#settingsPanel", { right: open ? "-100%" : "0px", duration: 0.6, ease: "expo.out" });
+            const panel = document.getElementById('settingsPanel');
+            const isOpen = panel.classList.contains('active');
+            gsap.to(panel, { right: isOpen ? "-100%" : "0px", duration: 0.7, ease: "expo.out" });
+            panel.classList.toggle('active');
             document.getElementById('apiKeyIn').value = localStorage.getItem('z8_key') || "";
         }
         
         function toggleMenu() {
-            const side = document.getElementById('side');
-            const open = side.style.left === "0px";
-            gsap.to(side, { left: open ? "-320px" : "0px", duration: 0.5, ease: "power4.out" });
-            if(!open) {
-                document.getElementById('over').style.display = "block";
-                gsap.to("#over", { opacity: 1, duration: 0.3 });
+            const side = document.getElementById('side'), over = document.getElementById('over');
+            const isOpen = side.classList.contains('active');
+            gsap.to(side, { left: isOpen ? "-320px" : "0px", duration: 0.6, ease: "power4.out" });
+            if(!isOpen) {
+                over.style.display = "block";
+                gsap.to(over, { opacity: 1, duration: 0.4 });
             } else {
-                gsap.to("#over", { opacity: 0, duration: 0.3, onComplete: () => document.getElementById('over').style.display = "none" });
+                gsap.to(over, { opacity: 0, duration: 0.4, onComplete: () => over.style.display = "none" });
             }
+            side.classList.toggle('active');
         }
 
         function saveAll() {
             localStorage.setItem('z8_key', document.getElementById('apiKeyIn').value);
             localStorage.setItem('z8_type', document.getElementById('botType').value);
             localStorage.setItem('z8_lang', document.getElementById('langIn').value);
-            pop("Neural Link Updated");
-            setTimeout(() => location.reload(), 800);
+            pop("Neural Link Verified");
+            setTimeout(() => location.reload(), 1000);
         }
 
         function previewImg(input) {
@@ -211,16 +212,16 @@
             updateList();
         }
 
-        async function send() {
+        async function handleSend() {
             const inp = document.getElementById('userInput'), val = inp.value.trim();
             const key = localStorage.getItem('z8_key');
             if(!key || (!val && !pendingImg)) return;
 
             const chat = convs.find(x => x.id === curId);
-            if(chat.title === "New Session") chat.title = val.substring(0, 20) || "Visual Query";
+            if(chat.title === "New Session") chat.title = val.substring(0, 22) || "Visual Analysis";
             
-            render(val || "Shared Image", 'user', pendingImg);
             const currentImg = pendingImg;
+            render(val || "Visual Query", 'user', currentImg);
             chat.msgs.push({role:'user', txt:val, img:currentImg});
             pendingImg = null; inp.value = "";
 
@@ -245,16 +246,16 @@
         }
 
         function render(t, r, img, fast) {
-            const c = document.getElementById('chat'), div = document.createElement('div');
-            div.className = `bubble ${r==='user'?'u-b':'bot-b'}`;
-            div.innerHTML = marked.parse(t);
-            if(img) {
-                const i = document.createElement('img'); i.src = img; i.className = 'attach-img';
-                div.appendChild(i);
-            }
-            c.appendChild(div);
-            gsap.to(div, { opacity: 1, y: 0, duration: fast ? 0 : 0.4 });
-            c.scrollTo({top: c.scrollHeight, behavior: fast ? 'auto' : 'smooth'});
+            const chat = document.getElementById('chat');
+            const row = document.createElement('div');
+            row.className = `row ${r==='user'?'u-row':''}`;
+            let html = `<div class="bubble ${r==='user'?'u-b':'bot-b'}">${marked.parse(t)}`;
+            if(img) html += `<img src="${img}" class="attach-img">`;
+            html += `</div>`;
+            row.innerHTML = html;
+            chat.appendChild(row);
+            gsap.to(row, { opacity: 1, y: 0, duration: fast ? 0 : 0.5, ease: "power2.out" });
+            chat.scrollTo({top: chat.scrollHeight, behavior: fast?'auto':'smooth'});
         }
 
         function updateList() {
@@ -263,13 +264,13 @@
                 const d = document.createElement('div');
                 d.className = `convo-item ${c.id === curId ? 'active' : ''}`;
                 d.innerText = c.title;
-                d.onclick = () => { loadChat(c.id); toggleMenu(); };
+                d.onclick = () => { loadChat(c.id); if(window.innerWidth<800) toggleMenu(); };
                 l.appendChild(d);
             });
         }
 
         function save() { localStorage.setItem('z8_data', JSON.stringify(convs)); }
-        document.getElementById('userInput').addEventListener('keypress', (e) => e.key === 'Enter' && send());
+        document.getElementById('userInput').addEventListener('keypress', (e) => e.key === 'Enter' && handleSend());
     </script>
 </body>
 </html>
